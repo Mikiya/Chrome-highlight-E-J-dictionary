@@ -44,7 +44,7 @@ function nohcjacbfnpdidonckmhkjfneoaifnfj() {
   var button_text_color = 'white';
   var button_text_hcolor = 'mistyrose';
   var item_size_margin = 20;
-  var tooltip_adjustment = {x: -80, y: -8};
+  var tooltip_adjustment = {x: -120, y: -8};
 
   var translate_title = '>> Google Translate: (';
   var translate_title_suffix = ')';
@@ -59,6 +59,7 @@ function nohcjacbfnpdidonckmhkjfneoaifnfj() {
   var words_displayed = '';
   var the_timer = null;
   var range_searched = null;
+  var saved_page_width = 0;
 
   if (debug)
     console.log('========== initializing highlight_je_dic ========== ');
@@ -212,6 +213,7 @@ function nohcjacbfnpdidonckmhkjfneoaifnfj() {
       return;
     }
 
+    saved_page_width = document.documentElement.scrollWidth || document.body.scrollWidth;
     embed_form();
     configure_items(w);
     fadein_tooltip(p);
@@ -308,9 +310,23 @@ function nohcjacbfnpdidonckmhkjfneoaifnfj() {
       adjust_google_translate_size();
 
     // Finally adjust tooltip size.
+    var left = p.left + tooltip_adjustment['x'];
+    if (left < 0)
+      left = 0;
+    if (left + the_tooltip.width() > saved_page_width)
+      left = saved_page_width - the_tooltip.width();
+    console.log(saved_page_width + ":" + left + ":" + the_tooltip.width());
+    var top = p.top - the_tooltip.height() + tooltip_adjustment['y'];
+    /*
+     * I skip the following code, as it's not a big problem which we cannot
+     * translate small portion within a page, compared to making it
+     * inaccessible by covering them with tooltip.
+     */
+    //if (top < 0)
+    //  top = 0;
     the_tooltip.css({
-      left: p.left + tooltip_adjustment['x'],
-      top: p.top - the_tooltip.height() + tooltip_adjustment['y']
+      left: left,
+      top: top
     });
   }
 
