@@ -1,0 +1,13 @@
+A simple 'select and popup' style E-J/J-E dictionary on Chrome web browser.
+
+Copyright (C) 2010  Mikiya Okuno
+
+
+INSTALL
+
+In order to install it using source code from this repository, follow the
+instruction in the following page:
+http://code.google.com/chrome/webstore/docs/get_started_simple.html
+
+Otherwise, install it from the "chrome web store":
+https://chrome.google.com/webstore/detail/nohcjacbfnpdidonckmhkjfneoaifnfj
