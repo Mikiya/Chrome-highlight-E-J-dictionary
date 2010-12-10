@@ -288,7 +288,7 @@ function nohcjacbfnpdidonckmhkjfneoaifnfj() {
             var result_area = $('#' + my_id + ' div[name=translate_result]');
             result_area.show();
             result_area.css({padding: '2px'});
-            result_area.text(data.responseData.translatedText);
+            result_area.html(data.responseData.translatedText);
 
             adjust_size_and_position();
           }
