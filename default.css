@@ -1,0 +1,19 @@
+
+.nippondanji_je_search_tooltip input {
+  font-size: 12px !important;
+  z-index: 9999 !important;
+}
+
+div.nippondanji_je_search_tooltip {
+  z-index: 9999 !important;
+}
+
+.highlight_je_search_box {
+  position:relative;
+  padding:12px;
+  margin:0;
+  color:#fff;
+  background:midnightblue;
+  border-radius:10px;
+  background:-webkit-gradient(linear, left top, left bottom, from(slategray), to(midnightblue));
+}
