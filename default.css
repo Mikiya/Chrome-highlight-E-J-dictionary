@@ -28,5 +28,11 @@ div.nippondanji_je_search_tooltip {
     text-align: left !important;
     font-weight: bold !important;
     font-size: 12px !important;
+    font-family: sans-serif !important;
     position: relative !important;
+}
+
+.highlight_je_search_box li {
+    text-align: left !important;
+    font-family: sans-serif !important;
 }
