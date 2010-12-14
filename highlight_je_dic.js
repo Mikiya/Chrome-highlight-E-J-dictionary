@@ -18,12 +18,7 @@
  */
 
 
-/*
- * Ugly! Of course, I prefer to make it a closuer, but jQuery's $(document).ready()
- * doesn't work in certain situations. I named a function using its hash on
- * Chrome Web Store, so I believe the function name doesn't clash with others.
- */
-function nohcjacbfnpdidonckmhkjfneoaifnfj() {
+(function () {
     /* Configuration variables */
     var enable_iknow_search = true;
     var enable_alc_search = true;
@@ -114,6 +109,7 @@ function nohcjacbfnpdidonckmhkjfneoaifnfj() {
         setup: function(the_list) {
             var list_item = create_list_item();
             list_item.appendTo(the_list);
+            list_item.attr('uuid', this.uuid);
             list_item.attr('name', 'googletranslate');
 
             var title_area_frame = $('<div />');
@@ -201,7 +197,7 @@ function nohcjacbfnpdidonckmhkjfneoaifnfj() {
 
                     var title_area = $('#' + my_id + ' input[name=translate_title][uuid=' + module.uuid + ']');
                     title_area.show();
-                    title_area.css({padding: '2px', height: 'auto'});
+                    title_area.css({'margin-bottom': '4px', height: 'auto'});
                     title_area.attr('value', module.title + lang_desc + module.title_suffix);
                     adjust_size_and_position();
 
@@ -234,6 +230,7 @@ function nohcjacbfnpdidonckmhkjfneoaifnfj() {
             var title_area = adjust_input_size(this.uuid);
             height += title_area.height();
             height += parseInt(title_area.css('padding-top')) + parseInt(title_area.css('padding-bottom'));
+            height += parseInt(title_area.css('margin-top')) + parseInt(title_area.css('margin-bottom'));
             $('#' + my_id + ' form[uuid=' + this.uuid + ']').height(height);
 
             var result_area = $('#' + my_id + ' div[name=translate_result]');
@@ -455,7 +452,7 @@ function nohcjacbfnpdidonckmhkjfneoaifnfj() {
         var top = p.top - the_tooltip.height() + tooltip_adjustment.y;
         /*
          * I skip the following code, as it's not a big problem which we cannot
-         * translate small portion within a page, compared to making it
+         * see translation for small portion within a page, compared to making it
          * inaccessible by covering them with tooltip.
          */
         //if (top < 0)
@@ -562,10 +559,4 @@ function nohcjacbfnpdidonckmhkjfneoaifnfj() {
 
     /* Enable this extension within pages */
     $('*').mousedown(update).mouseup(update);
-};
-
-/*
- * Don't have to wait until page is ready. In some cases, $(document).ready()
- * doesn't work properly. Let's call the function directly instead.
- */
-nohcjacbfnpdidonckmhkjfneoaifnfj();
+}) ();
