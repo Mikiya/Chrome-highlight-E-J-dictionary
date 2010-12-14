@@ -26,6 +26,7 @@
 function nohcjacbfnpdidonckmhkjfneoaifnfj() {
     /* Configuration variables */
     var enable_iknow_search = true;
+    var enable_alc_search = true;
     var enable_google_translate = true;
 
     var my_id = 'nippondanji_je_search_tooltip';
@@ -39,76 +40,65 @@ function nohcjacbfnpdidonckmhkjfneoaifnfj() {
     var fadein_delay = 200;
     var distance = 40;
     var opacity = 0.9;
+    var button_text_color = 'white';
+    var button_text_hcolor = 'mistyrose';
 
     /*
      * Modules displayed within the tooltip. Each module should implement three functions:
      * setup(), configure() and adjust_size().
      */
-    var iknow_search_module = {
-        name: 'iKnow dictonary search',
-        /* Configuration variables */
-        iknow_url: 'http://smart.fm/jisho/',
-        iknow_desc: '>> iKnowで「',
-        iknow_desc_suffix: '」を検索',
-        button_text_color: 'white',
-        button_text_hcolor: 'mistyrose',
+    function SimpleSearchModule() {
 
-        setup: function(the_list) {
+        this.setup = function(the_list) {
             var list_item = create_list_item();
-            list_item.attr('name', 'iknowsearch');
+            list_item.attr('uuid', this.uuid);
             list_item.appendTo(the_list);
 
-            var the_form = $('<form />');
-            the_form.attr('target', '_blank');
-            the_form.attr('method', 'GET');
-            the_form.css({
-                padding: 0,
-                margin: 0
-            });
+            var the_form = create_empty_form();
+            the_form.attr('uuid', this.uuid);
             the_form.appendTo(list_item);
 
             var input = $('<input />');
-            input.attr('type', 'submit');
-            input.css({
-                padding: 0,
-                margin: 0,
-                border: 'transparent',
-                'background-color': 'transparent',
-                'text-align': 'left !important',
-                'font-weight': 'bold',
-                'font-size': '12px',
-                'color': this.button_text_color,
-                position: 'relative'
+            input.attr({
+                type: 'submit',
+                uuid: this.uuid,
+                name: 'search_button'
             });
-            input.mouseover(function(e) { input.css({ 'color': this.button_text_hcolor})});
-            input.mouseout(function(e) {input.css({ 'color': this.button_text_color})});
+            input.css({'color': button_text_color});
+            input.mouseover(function(e) { input.css({ 'color': button_text_hcolor})});
+            input.mouseout(function(e) {input.css({ 'color': button_text_color})});
             input.click(hide_tooltip);
             input.appendTo(the_form);
-        },
+        };
 
-        configure: function(w) {
+        this.configure = function(w) {
             var url = this.iknow_url + encodeURI(w);
-            w = w.length > this.max_phrase_display ? w.substring(0, this.max_phrase_display) + '...' : w;
-            var desc = this.iknow_desc + w + this.iknow_desc_suffix;
-            $('#' + my_id + ' form').attr('action', url);
-            $('#' + my_id + ' input').attr('value', desc);
+            var desc = this.iknow_desc;
+            $('#' + my_id + ' form[uuid=' + this.uuid + ']').attr('action', url);
+            $('#' + my_id + ' input[uuid=' + this.uuid + ']').attr('value', desc);
             if (debug) console.log('Submit button text: ' + desc);
-        },
+        };
 
-        adjust_size: function() {
-            var the_input = $('#' + my_id + ' input');
-            the_input.css({width: 'auto', 'word-wrap': 'normal'});
-            var width = Math.min(max_width - item_size_margin, the_input.width());
-            wrap = the_input.width() == width ? 'normal' : 'break-word';
-            the_input.css({width: width, 'word-wrap': wrap});
+        this.adjust_size = function() {
+            var the_input = adjust_input_size(this.uuid);
 
-            var list_item = $('#' + my_id + ' li[name=iknowsearch]');
+            var list_item = $('#' + my_id + ' li[uuid=' + this.uuid + ']');
             list_item.height(the_input.height());
 
             var form = $('#' + my_id + ' form');
             form.height(the_input.height());
         }
     }
+
+    var iknow_search_module = new SimpleSearchModule();
+    iknow_search_module.name = 'iKnow dictonary search';
+    iknow_search_module.iknow_url = 'http://smart.fm/jisho/';
+    iknow_search_module.iknow_desc = '>> iKnowで検索';
+
+    var alc_search_module = new SimpleSearchModule();
+    alc_search_module.name = 'ALC';
+    alc_search_module.iknow_url = 'http://eow.alc.co.jp/';
+    alc_search_module.iknow_desc = '>> 英二郎 on the WEBで検索';
 
     var google_translate_module = {
         name: 'Google Translate',
@@ -119,24 +109,37 @@ function nohcjacbfnpdidonckmhkjfneoaifnfj() {
         api_version: '1.0',
         language_detect_api_url: 'https://ajax.googleapis.com/ajax/services/language/detect',
         translate_api_url: 'https://ajax.googleapis.com/ajax/services/language/translate',
+        search_url: 'http://translate.google.com/#',
 
         setup: function(the_list) {
             var list_item = create_list_item();
             list_item.appendTo(the_list);
             list_item.attr('name', 'googletranslate');
 
-            var title_area = $('<div />');
-            title_area.attr('name', 'translate_title');
+            var title_area_frame = $('<div />');
+            title_area_frame.css({padding: 0, 'margin-top': '3px', 'margin-bottom': '3px'});
+            title_area_frame.appendTo(list_item);
+
+            var title_area_form = create_empty_form();
+            title_area_form.attr('uuid', this.uuid);
+            title_area_form.css('display', 'none');
+            title_area_form.appendTo(title_area_frame);
+
+            var title_area = $('<input />');
+            title_area.attr({
+                type: 'submit',
+                name: 'translate_title',
+                uuid: this.uuid
+            });
+            console.log(title_area);
             title_area.css({
-                'text-align': 'left !important',
-                padding: 0,
-                margin: 0,
-                'font-weight': 'bold',
-                'font-size': '12px',
-                align: 'left',
+                'color': button_text_color,
                 display: 'none'
             });
-            title_area.appendTo(list_item);
+            title_area.mouseover(function(e) { title_area.css({ 'color': button_text_hcolor})});
+            title_area.mouseout(function(e) {title_area.css({ 'color': button_text_color})});
+            title_area.click(hide_tooltip);
+            title_area.appendTo(title_area_form);
 
             var result_area = $('<div />');
             result_area.attr('name', 'translate_result');
@@ -186,14 +189,20 @@ function nohcjacbfnpdidonckmhkjfneoaifnfj() {
                     } else {
                         if (debug)
                             console.log('bad language:' + data.responseData.language);
+                        return;
                     }
                     if (debug)
                         console.log('got language successfully: ' + detected_lang);
 
-                    var title_area = $('#' + my_id + ' div[name=translate_title]');
+                    var url = module.search_url + lang_arg + '|' + encodeURI(w);
+                    var title_form = $('#' + my_id + ' form[uuid=' + module.uuid + ']');
+                    title_form.attr('action', url);
+                    title_form.show();
+
+                    var title_area = $('#' + my_id + ' input[name=translate_title][uuid=' + module.uuid + ']');
                     title_area.show();
-                    title_area.text(module.title + lang_desc + module.title_suffix);
-                    title_area.css({padding: '2px'});
+                    title_area.css({padding: '2px', height: 'auto'});
+                    title_area.attr('value', module.title + lang_desc + module.title_suffix);
                     adjust_size_and_position();
 
                     chrome_getJSON(
@@ -222,6 +231,11 @@ function nohcjacbfnpdidonckmhkjfneoaifnfj() {
         adjust_size: function() {
             var height = 0;
 
+            var title_area = adjust_input_size(this.uuid);
+            height += title_area.height();
+            height += parseInt(title_area.css('padding-top')) + parseInt(title_area.css('padding-bottom'));
+            $('#' + my_id + ' form[uuid=' + this.uuid + ']').height(height);
+
             var result_area = $('#' + my_id + ' div[name=translate_result]');
             result_area.css({width: 'auto'});
             if (result_area.width() > (max_width - item_size_margin)) {
@@ -229,10 +243,6 @@ function nohcjacbfnpdidonckmhkjfneoaifnfj() {
             }
             height += result_area.height();
             height += result_area.css('padding-top') + result_area.css('padding-bottom');
-
-            var title_area = $('#' + my_id + ' div[name=translate_title]');
-            height += title_area.height();
-            height += title_area.css('padding-top') + title_area.css('padding-bottom');
 
             var list_item = $('#' + my_id + ' li[name=googletranslate]');
             list_item.height(height);
@@ -243,8 +253,14 @@ function nohcjacbfnpdidonckmhkjfneoaifnfj() {
     var the_modules = new Array();
     if (enable_iknow_search)
         the_modules.push(iknow_search_module);
+    if (enable_alc_search)
+        the_modules.push(alc_search_module);
     if (enable_google_translate)
         the_modules.push(google_translate_module);
+
+    for (var i = 0; i < the_modules.length; i++) {
+        the_modules[i].uuid = generate_uuid();
+    }
 
     /* The global variables */
     var debug = true;
@@ -258,8 +274,72 @@ function nohcjacbfnpdidonckmhkjfneoaifnfj() {
     if (debug)
         console.log('========== initializing highlight_je_dic ========== ');
 
+    /*
+     * Utility functions
+     */
+
     function chrome_getJSON(url, data, callback) {
         chrome.extension.sendRequest({action:'getJSON', url:url, data: data}, callback);
+    }
+
+    function generate_uuid() {
+        var toHex = function(n, digits) {
+            var s = n.toString(16);
+            s = (new Array(Math.max(1, digits - s.length + 1))).join('0') + s;
+            return s.split('');
+        }
+        var hyphens = [8, 13, 18, 23];
+        
+        var res = new Array();
+        for (var i = 0; i < 4; i++) {
+            res = res.concat(toHex(Math.random() * 0x100000000, 8));
+        }
+
+        res[14] = '4';
+        res[19] = ((parseInt(res[19]) & 0x3) | 0x8).toString(16);
+        
+        for (var i = 0; i < hyphens.length; i++)
+            res.splice(hyphens[i], 0, '-');
+ 
+        return res.join('');
+    }
+
+
+    function normalize_text(str) {
+        str = str.replace(/\n/g, " ");
+        str = $.trim(str.replace(/(　| )+/g, " "));
+
+        if (str.length > max_phrase_len)
+            str = '';
+
+        return str;
+    }
+
+    function compare_range(r1, r2) {
+        if (r1 == null || r2 == null) return false;
+        return (
+            r1.startContainer == r2.startContainer &&
+            r1.startOffset == r2.startOffset &&
+            r1.endContainer == r2.endContainer &&
+            r1.endOffset == r2.endOffset
+        );
+    }
+
+    function is_range_empty(r) {
+        return (
+             r.startOffset == r.endOffset && r.startContainer == r.endContainer
+        );
+    }
+
+    /* jQuery supplemental functions */
+    function adjust_input_size(uuid) {
+        var the_input = $('#' + my_id + ' input[uuid=' + uuid + ']');
+        the_input.css({width: 'auto', 'word-wrap': 'normal'});
+        var width = Math.min(max_width - item_size_margin, the_input.width());
+        wrap = the_input.width() == width ? 'normal' : 'break-word';
+        the_input.css({width: width, 'word-wrap': wrap});
+
+        return the_input;
     }
 
     /* Embed the popup (tooltip style) form */
@@ -291,6 +371,17 @@ function nohcjacbfnpdidonckmhkjfneoaifnfj() {
         }
 
         $('body').append(tooltip_element);
+    }
+
+    function create_empty_form() {
+        var the_form = $('<form />');
+        the_form.attr('target', '_blank');
+        the_form.attr('method', 'GET');
+        the_form.css({
+            padding: 0,
+            margin: 0
+        });
+        return the_form;
     }
 
     function create_list_item() {
@@ -326,12 +417,6 @@ function nohcjacbfnpdidonckmhkjfneoaifnfj() {
         }
 
         return point;
-    }
-
-    function is_range_empty(r) {
-        return (
-             r.startOffset == r.endOffset && r.startContainer == r.endContainer
-        );
     }
 
     function setup_search_box(w, p) {
@@ -434,26 +519,6 @@ function nohcjacbfnpdidonckmhkjfneoaifnfj() {
                 the_tooltip.css('display', 'none');
                 the_tooltip.remove();
         });
-    }
-
-    function normalize_text(str) {
-        str = str.replace(/\n/g, " ");
-        str = $.trim(str.replace(/(　| )+/g, " "));
-
-        if (str.length > max_phrase_len)
-            str = '';
-
-        return str;
-    }
-
-    function compare_range(r1, r2) {
-        if (r1 == null || r2 == null) return false;
-        return (
-            r1.startContainer == r2.startContainer &&
-            r1.startOffset == r2.startOffset &&
-            r1.endContainer == r2.endContainer &&
-            r1.endOffset == r2.endOffset
-        );
     }
 
     /*
