@@ -36,3 +36,15 @@ div.nippondanji_je_search_tooltip {
     text-align: left !important;
     font-family: sans-serif !important;
 }
+
+.highlight_je_search_box blockquote {
+    border: 1px solid lightgray !important;
+    color: white !important;
+    background-color: #111 !important;
+    text-align: left !important;
+    padding: 0;
+    margin: 0;
+    font-size: 13px !important;
+    font-style: normal !important;
+    line-height: normal !important;
+}

@@ -23,6 +23,7 @@
     var enable_iknow_search = true;
     var enable_alc_search = true;
     var enable_google_translate = true;
+    var enable_wikipedia_en = true;
 
     var my_id = 'nippondanji_je_search_tooltip';
     var tooltip_css_class = 'highlight_je_search_box';
@@ -38,11 +39,20 @@
     var button_text_color = 'white';
     var button_text_hcolor = 'mistyrose';
 
+    /* Modules */
+    var the_modules = new Array();
+
     /*
      * Modules displayed within the tooltip. Each module should implement three functions:
      * setup(), configure() and adjust_size().
      */
     function SimpleSearchModule() {
+        this.name = null;
+        this.url = null;
+        this.label = null;
+        this.method = null;
+        this.hiddens = null;
+        this.q_field = null;
 
         this.setup = function(the_list) {
             var list_item = create_list_item();
@@ -50,14 +60,15 @@
             list_item.appendTo(the_list);
 
             var the_form = create_empty_form();
+            if (this.method)
+                the_form.attr({method: this.method});
             the_form.attr('uuid', this.uuid);
             the_form.appendTo(list_item);
 
             var input = $('<input />');
             input.attr({
                 type: 'submit',
-                uuid: this.uuid,
-                name: 'search_button'
+                uuid: this.uuid
             });
             input.css({'color': button_text_color});
             input.mouseover(function(e) { input.css({ 'color': button_text_hcolor})});
@@ -67,11 +78,22 @@
         };
 
         this.configure = function(w) {
-            var url = this.iknow_url + encodeURI(w);
-            var desc = this.iknow_desc;
-            $('#' + my_id + ' form[uuid=' + this.uuid + ']').attr('action', url);
-            $('#' + my_id + ' input[uuid=' + this.uuid + ']').attr('value', desc);
-            if (debug) console.log('Submit button text: ' + desc);
+            var url = this.url;
+            var form = $('#' + my_id + ' form[uuid=' + this.uuid + ']');
+            if (this.hiddens) {
+                for (key in this.hiddens) {
+                    create_hidden(key, this.hiddens[key], form);
+                }
+            }
+            if (this.q_field) {
+                create_hidden(this.q_field, encodeURI(w), form);
+            } else {
+                url = url + encodeURI(w);
+            }
+            form.attr('action', url);
+
+            $('#' + my_id + ' input[uuid=' + this.uuid + ']').attr('value', this.label);
+            if (debug) console.log('Submit button text: ' + this.label);
         };
 
         this.adjust_size = function() {
@@ -87,13 +109,27 @@
 
     var iknow_search_module = new SimpleSearchModule();
     iknow_search_module.name = 'iKnow dictonary search';
-    iknow_search_module.iknow_url = 'http://smart.fm/jisho/';
-    iknow_search_module.iknow_desc = '>> iKnowで検索';
+    iknow_search_module.url = 'http://smart.fm/jisho/';
+    iknow_search_module.label = '>> iKnowで検索';
+    if (enable_iknow_search)
+        the_modules.push(iknow_search_module);
 
     var alc_search_module = new SimpleSearchModule();
     alc_search_module.name = 'ALC';
-    alc_search_module.iknow_url = 'http://eow.alc.co.jp/';
-    alc_search_module.iknow_desc = '>> 英二郎 on the WEBで検索';
+    alc_search_module.url = 'http://eow.alc.co.jp/';
+    alc_search_module.label = '>> 英二郎 on the WEBで検索';
+    if (enable_alc_search)
+        the_modules.push(alc_search_module);
+
+    var wikipedia_en_module = new SimpleSearchModule();
+    wikipedia_en_module.name = 'Wikipedia(en)';
+    wikipedia_en_module.url = 'http://en.wikipedia.org/w/index.php';
+    wikipedia_en_module.hiddens = {title: 'Special:Search'}
+    wikipedia_en_module.method = 'POST';
+    wikipedia_en_module.q_field = 'search';
+    wikipedia_en_module.label = '>> Wikipedia英語版で検索';
+    if (enable_wikipedia_en)
+        the_modules.push(wikipedia_en_module);
 
     var google_translate_module = {
         name: 'Google Translate',
@@ -137,18 +173,9 @@
             title_area.click(hide_tooltip);
             title_area.appendTo(title_area_form);
 
-            var result_area = $('<div />');
+            var result_area = $('<blockquote />');
             result_area.attr('name', 'translate_result');
-            result_area.css({
-                border: '1px solid lightgray',
-                color: 'black',
-                'background-color': 'aliceblue',
-                'text-align': 'left !important',
-                padding: 0,
-                margin: 0,
-                'font-size': '12px',
-                display: 'none'
-            });
+            result_area.css({display: 'none'});
             result_area.appendTo(list_item);
         },
 
@@ -212,9 +239,9 @@
                             if (data.responseStatus != 200)
                                 return;
 
-                            var result_area = $('#' + my_id + ' div[name=translate_result]');
+                            var result_area = $('#' + my_id + ' blockquote[name=translate_result]');
                             result_area.show();
-                            result_area.css({padding: '2px'});
+                            result_area.css({padding: '4px', margin: '4px', opacity: opacity});
                             result_area.html(data.responseData.translatedText);
 
                             adjust_size_and_position();
@@ -233,7 +260,7 @@
             height += parseInt(title_area.css('margin-top')) + parseInt(title_area.css('margin-bottom'));
             $('#' + my_id + ' form[uuid=' + this.uuid + ']').height(height);
 
-            var result_area = $('#' + my_id + ' div[name=translate_result]');
+            var result_area = $('#' + my_id + ' blockquote[name=translate_result]');
             result_area.css({width: 'auto'});
             if (result_area.width() > (max_width - item_size_margin)) {
                 result_area.width(max_width - item_size_margin);
@@ -245,16 +272,10 @@
             list_item.height(height);
         }
     };
-
-    /* Modules initialization */
-    var the_modules = new Array();
-    if (enable_iknow_search)
-        the_modules.push(iknow_search_module);
-    if (enable_alc_search)
-        the_modules.push(alc_search_module);
     if (enable_google_translate)
         the_modules.push(google_translate_module);
 
+    /* Generate UUIDs for modules */
     for (var i = 0; i < the_modules.length; i++) {
         the_modules[i].uuid = generate_uuid();
     }
@@ -276,7 +297,17 @@
      */
 
     function chrome_getJSON(url, data, callback) {
-        chrome.extension.sendRequest({action:'getJSON', url:url, data: data}, callback);
+        chrome.extension.sendRequest({action:'getJSON', url: url, data: data}, callback);
+    }
+
+    function chrome_localStorage(key, callback) {
+        chrome.extension.sendRequest({action:'getStorage', key: key, kind: 'local'}, callback);
+    }
+
+    // example) chrome_localStorage('test', function(o) { some_obj = JSON.parse(o); });
+
+    function chrome_sessionStorage(key, callback) {
+        chrome.extension.sendRequest({action:'getStorage', key: key, kind: 'session'}, callback);
     }
 
     function generate_uuid() {
@@ -393,6 +424,18 @@
         });
 
         return li;
+    }
+
+    function create_hidden(key, val, form) {
+        var h = $('<input />');
+        h.attr({
+            type: 'hidden',
+            name: key,
+            value: val
+        });
+        if (form)
+            h.appendTo(form);
+        return h;
     }
 
     function get_selected_region_geometry(range) {
@@ -525,7 +568,7 @@
         if (e.button == 2) return; // right-click
 
         // No items are enabled.
-        if (!(enable_iknow_search || enable_google_translate))
+        if (the_modules.length == 0)
             return;
 
         var s = window.getSelection();
