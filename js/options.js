@@ -20,3 +20,62 @@
 var val = {desc: 'this is a test', struct: {x: 1, y: 2}, chars: ['a', 'b']};
 localStorage.test = JSON.stringify(val);
 console.log(localStorage.test);
+
+$(function() {
+    $( "#accordion" ).accordion({
+        autoHeight: false,
+        navigation: true
+    });
+
+    copyright = $('#copyright');
+    copyright .css({
+        position: 'relative',
+        'text-align': 'center',
+        width: '400px',
+        margin: '0 auto 0 auto',
+        padding: '20px'
+    });
+
+    width = parseInt($(window).width()) - 150 - 40;
+    if (width < 320)
+        width = 320;
+    $('#config_area').width(width);
+
+    $('#menubar button').button().css({'font-size': '14px', width: '140px'});
+
+    $('#copyright').dialog({
+        autoOpen: false,
+        modal: true,
+        width: 450,
+        height: 200
+    });
+
+    $('#menubar #about').click(function(e) {
+        console.log('Button clicked');
+        $('#copyright').dialog('open');
+    });
+
+    $('#menubar #close').click(function(e) {
+        window.close();
+    });
+
+    function set_modkey_button_status(enabling_method) {
+        if (enabling_method == 'select') {
+            $('#enabling_method fieldset input').attr('disabled', 'disabled');
+            $('#enabling_method fieldset').css({
+                'text-decoration': 'line-through',
+                'color': 'darkgray'
+            });
+        } else {
+            $('#enabling_method fieldset input').removeAttr('disabled');
+            $('#enabling_method fieldset').css({
+                'text-decoration': 'none',
+                'color': 'white'
+            });
+        }
+    }
+
+    $('#enabling_method [name=popup_enable_method]').click(function(e) {
+        _modkey_button_status(e.target.value);
+    });
+});
