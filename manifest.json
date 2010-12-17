@@ -9,7 +9,7 @@
           "css": ["css/default.css"]
       }
   ],
-  "permissions": [ "http://*/", "https://*/", "tabs", "unlimitedStorage" ],
+  "permissions": [ "http://*/*", "https://*/*", "tabs", "unlimitedStorage" ],
   "background_page": "background.html",
   "options_page": "options.html"
 }

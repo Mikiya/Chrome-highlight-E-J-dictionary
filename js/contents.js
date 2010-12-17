@@ -20,10 +20,12 @@
 
 (function () {
     /* Configuration variables */
-    var enable_iknow_search = true;
-    var enable_alc_search = true;
-    var enable_google_translate = true;
-    var enable_wikipedia_en = true;
+    var enabled_modules = {
+        iknow: true,
+        eow: true,
+        google_translate: true,
+        wikipedia_en: true
+    };
 
     var my_id = 'highlight_ej_search_tooltip';
     var tooltip_css_class = 'highlight_ej_search_box';
@@ -105,30 +107,6 @@
             form.height(the_input.height());
         }
     }
-
-    var iknow_search_module = new SimpleSearchModule();
-    iknow_search_module.name = 'iKnow dictonary search';
-    iknow_search_module.url = 'http://smart.fm/jisho/';
-    iknow_search_module.label = '>> iKnowで検索';
-    if (enable_iknow_search)
-        the_modules.push(iknow_search_module);
-
-    var alc_search_module = new SimpleSearchModule();
-    alc_search_module.name = 'ALC';
-    alc_search_module.url = 'http://eow.alc.co.jp/';
-    alc_search_module.label = '>> 英二郎 on the WEBで検索';
-    if (enable_alc_search)
-        the_modules.push(alc_search_module);
-
-    var wikipedia_en_module = new SimpleSearchModule();
-    wikipedia_en_module.name = 'Wikipedia(en)';
-    wikipedia_en_module.url = 'http://en.wikipedia.org/w/index.php';
-    wikipedia_en_module.hiddens = {title: 'Special:Search'}
-    wikipedia_en_module.method = 'POST';
-    wikipedia_en_module.q_field = 'search';
-    wikipedia_en_module.label = '>> Wikipedia英語版で検索';
-    if (enable_wikipedia_en)
-        the_modules.push(wikipedia_en_module);
 
     var google_translate_module = {
         name: 'Google Translate',
@@ -271,14 +249,44 @@
             list_item.height(height);
         }
     };
-    if (enable_google_translate)
-        the_modules.push(google_translate_module);
 
-    /* Generate UUIDs for modules */
-    for (var i = 0; i < the_modules.length; i++) {
-        the_modules[i].uuid = generate_uuid();
+    function setup_modules(enabled) {
+        if (enabled.iknow) {
+            the_modules.push($.extend(new SimpleSearchModule(), {
+                name: 'iKnow dictonary search',
+                url: 'http://smart.fm/jisho/',
+                label: '>> iKnowで検索'
+            }));
+        };
+        
+        if (enabled.eow) {
+            the_modules.push($.extend(new SimpleSearchModule(), {
+                name: 'ALC',
+                url: 'http://eow.alc.co.jp/',
+                label: '>> 英二郎 on the WEBで検索'
+            }));
+        }
+        
+        if (enabled.wikipedia_en) {
+            the_modules.push($.extend(new SimpleSearchModule(), {
+                name: 'Wikipedia(en)',
+                url: 'http://en.wikipedia.org/w/index.php',
+                hiddens: {title: 'Special:Search'},
+                method: 'POST',
+                q_field: 'search',
+                label: '>> Wikipedia英語版で検索'
+            }));
+        }
+        
+        if (enabled.google_translate)
+            the_modules.push(google_translate_module);
+
+        /* Generate UUIDs for modules */
+        for (var i = 0; i < the_modules.length; i++) {
+            the_modules[i].uuid = generate_uuid();
+        }
     }
-
+    
     /* The global variables */
     var debug = true;
     var tooltip_status = 'hidden';
@@ -605,6 +613,7 @@
         if (debug)
             console.log(o);
 
+        setup_modules(o.enabled_builtin_engines);
         setup_event_listener(o.enabling_method);
     });
 
@@ -620,7 +629,6 @@
                     (o.modkey == 'ctrl' && e.keyCode == 17) ||
                     (o.modkey == 'alt' && e.keyCode == 18))
                     update(e);
-                console.log(e);
             });
             $('*').mousedown(hide_tooltip).mouseup(hide_tooltip);
         } else if (o.method == 'select_with_key') {

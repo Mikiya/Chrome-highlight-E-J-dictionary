@@ -81,6 +81,12 @@ $(function() {
         enabling_method: {
             method: 'select',
             modkey: 'shift'
+        },
+        enabled_builtin_engines: {
+            iknow: true,
+            eow: true,
+            wikipedia_en: true,
+            google_translate: true
         }
     });
 
@@ -117,6 +123,12 @@ $(function() {
             enabling_method: {
                 method: $('#enabling_method input[name=popup_enable_method]:checked').val(),
                 modkey: $('#enabling_method input[name=popup_enable_modifier_key]:checked').val()
+            },
+            enabled_builtin_engines: {
+                iknow: $('#enabled_builtin_engines input[name=iknow]:checked').length == 1,
+                eow: $('#enabled_builtin_engines input[name=eow]:checked').length == 1,
+                wikipedia_en: $('#enabled_builtin_engines input[name=wikipedia_en]:checked').length == 1,
+                google_translate: $('#enabled_builtin_engines input[name=google_translate]:checked').length == 1
             }
         };
     }
@@ -126,6 +138,11 @@ $(function() {
         $('#enabling_method input[name=popup_enable_method][value=' + o.enabling_method.method + ']').attr('checked', 'checked');
         $('#enabling_method input[name=popup_enable_modifier_key][value=' + o.enabling_method.modkey + ']').attr('checked', 'checked');
         set_modkey_button_status(o.enabling_method.method);
+
+        $('#enabled_builtin_engines input[name=iknow]').attr('checked', o.enabled_builtin_engines.iknow);
+        $('#enabled_builtin_engines input[name=eow]').attr('checked', o.enabled_builtin_engines.eow);
+        $('#enabled_builtin_engines input[name=wikipedia_en]').attr('checked', o.enabled_builtin_engines.wikipedia_en);
+        $('#enabled_builtin_engines input[name=google_translate]').attr('checked', o.enabled_builtin_engines.google_translate);
     }
 
     set_options(localStorage['options']);
