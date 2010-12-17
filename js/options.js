@@ -50,9 +50,43 @@ $(function() {
         height: 200
     });
 
+    /*
+     * Status bar functions
+     */
+    var statusbar_timer = null;
+    $('#statusbar').hide();
+
+    function show_info(title, msg) {
+        title = title.length > 0 ? title + ':' : '';
+        $('#statusbar #message_title').text(title);
+        $('#statusbar span#message').text(msg);
+
+        clearTimeout(statusbar_timer);
+        $('#statusbar').hide();
+
+        $('#statusbar').show('drop', {}, 600, function() {});
+        statusbar_timer = setTimeout(function() {
+            $( "#statusbar" ).hide('drop', {}, 600, function() {});
+        }, 4000 );
+    }
+
+    /*
+     * Buttons!
+     */
     $('#menubar #about').click(function(e) {
-        console.log('Button clicked');
         $('#copyright').dialog('open');
+    });
+
+    var default_settings = JSON.stringify({
+        enabling_method: {
+            method: 'select',
+            modkey: 'shift'
+        }
+    });
+
+    $('#menubar #default').click(function(e) {
+        set_options(default_settings);
+        show_info('INFO', 'default settings are loaded.');
     });
 
     $('#menubar #close').click(function(e) {
@@ -60,22 +94,39 @@ $(function() {
     });
 
     function set_modkey_button_status(enabling_method) {
-        if (enabling_method == 'select') {
+        if (enabling_method != 'select_then_key') {
             $('#enabling_method fieldset input').attr('disabled', 'disabled');
-            $('#enabling_method fieldset').css({
-                'text-decoration': 'line-through',
-                'color': 'darkgray'
-            });
+            $('#enabling_method fieldset').css({display: 'none'});
         } else {
             $('#enabling_method fieldset input').removeAttr('disabled');
-            $('#enabling_method fieldset').css({
-                'text-decoration': 'none',
-                'color': 'white'
-            });
+            $('#enabling_method fieldset').css({display: 'block'});
         }
     }
 
     $('#enabling_method [name=popup_enable_method]').click(function(e) {
-        _modkey_button_status(e.target.value);
+        set_modkey_button_status(e.target.value);
     });
+
+    $('#menubar #save').click(function(e) {
+        localStorage['options'] = JSON.stringify(get_options());
+        show_info('INFO', 'settings saved.');
+    });
+
+    function get_options() {
+        return {
+            enabling_method: {
+                method: $('#enabling_method input[name=popup_enable_method]:checked').val(),
+                modkey: $('#enabling_method input[name=popup_enable_modifier_key]:checked').val()
+            }
+        };
+    }
+
+    function set_options(json) {
+        var o = JSON.parse(json);
+        $('#enabling_method input[name=popup_enable_method][value=' + o.enabling_method.method + ']').attr('checked', 'checked');
+        $('#enabling_method input[name=popup_enable_modifier_key][value=' + o.enabling_method.modkey + ']').attr('checked', 'checked');
+        set_modkey_button_status(o.enabling_method.method);
+    }
+
+    set_options(localStorage['options']);
 });

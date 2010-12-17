@@ -13,8 +13,17 @@
 
 <h2>Highlight E-J Dictonary Options</h2>
 
-<div id="statusbar" style="height:20px; opacity: 0">
+<div style="height: 32px">
+  <div class="ui-widget" id="statusbar" style="width: 400px; height:32px; margin-left : auto; margin-right : auto; padding 8px;">
+    <div class="ui-state-highlight ui-corner-all" style="padding: 0; font-size: 14px;"> 
+      <p style="margin: 6px">
+        <span class="ui-icon ui-icon-info" style="float: left; margin-right: 0.5em; margin-left: 0.5em" id="icon"></span>
+        <strong id="message_title"></strong>&nbsp;<span id="message" style="margin-left : auto; margin-right : auto;"></span>
+      </p>
+    </div>
+  </div>
 </div>
+
 <div id="menubar" style="float:left; width:140px">
 <button class="menu_button" id="save">Save current settings</button><br/>
 <button class="menu_button" id="default">Load defaults</button></br>
@@ -27,16 +36,16 @@
   <h3><a href="#">General Settings</a></h3>
   <div id="general_settings">
 <fieldset id="enabling_method">
-  <legend>The popup displays...</legend>
-  <input type="radio" name="popup_enable_method" value="select">only when selecting the text.</input><br/>
-  <input type="radio" name="popup_enable_method" value="select_then_key" checked>when you select the text then press the following key.</input><br/>
-  <input type="radio" name="popup_enable_method" value="select_with_key">when selecting the text with the following key pressed.</input>
-  <fieldset id="modifier_key">
+  <legend>Display popup by</legend>
+  <input type="radio" name="popup_enable_method" value="select">selecting the text.</input><br/>
+  <input type="radio" name="popup_enable_method" value="select_then_key" checked>selecting the text then press the following key.</input><br/>
+  <fieldset id="modifier_key" style="margin-left:20px">
     <legend>Key</legend>
     <input type="radio" name="popup_enable_modifier_key" value="shift" checked>Shift</input>
-    <input type="radio" name="popup_enable_modifier_key" value="alt">Alt</input>
     <input type="radio" name="popup_enable_modifier_key" value="ctrl">Ctrl</input>
+    <input type="radio" name="popup_enable_modifier_key" value="alt">Alt</input>
   </fieldset>
+  <input type="radio" name="popup_enable_method" value="select_with_key">selecting the text with ctrl key pressed.</input>
 </fieldset>
 
 </ul>
@@ -60,7 +69,7 @@
 <!-- dummy -->
 </div>
 
-<div id="copyright" title="About this extension" style="font-size:16px; position: relative">
+<div id="copyright" title="About this extension" style="font-size:15px; position: relative">
 <div style="margin: auto; position: absolute: top: 50%; left: 50%">
 Copyright (C) 2010&nbsp;&nbsp;Mikiya Okuno<br/>
 This program is licensed under GPLv3 or later.<br/><br/>

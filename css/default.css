@@ -1,14 +1,14 @@
 
-.nippondanji_je_search_tooltip input {
+.highlight_ej_search_tooltip input {
     font-size: 12px !important;
     z-index: 9999 !important;
 }
 
-div.nippondanji_je_search_tooltip {
+div.highlight_ej_search_tooltip {
     z-index: 9999 !important;
 }
 
-.highlight_je_search_box {
+.highlight_ej_search_box {
     position: relative !important;
     padding: 12px !important;
     margin: 0 !important;
@@ -20,7 +20,7 @@ div.nippondanji_je_search_tooltip {
     font-family: sans-serif !important;
 }
 
-.highlight_je_search_box input {
+.highlight_ej_search_box input {
     padding: 0 !important;
     margin: 0 !important;
     border: transparent !important;
@@ -32,12 +32,12 @@ div.nippondanji_je_search_tooltip {
     position: relative !important;
 }
 
-.highlight_je_search_box li {
+.highlight_ej_search_box li {
     text-align: left !important;
     font-family: sans-serif !important;
 }
 
-.highlight_je_search_box blockquote {
+.highlight_ej_search_box blockquote {
     border: 1px solid lightgray !important;
     color: white !important;
     background-color: #111 !important;

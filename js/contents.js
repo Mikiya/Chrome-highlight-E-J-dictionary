@@ -25,10 +25,9 @@
     var enable_google_translate = true;
     var enable_wikipedia_en = true;
 
-    var my_id = 'nippondanji_je_search_tooltip';
-    var tooltip_css_class = 'highlight_je_search_box';
+    var my_id = 'highlight_ej_search_tooltip';
+    var tooltip_css_class = 'highlight_ej_search_box';
     var max_phrase_len = 1000;
-    var max_phrase_display = 100;
     var max_width = 320;
     var item_size_margin = 20;
     var tooltip_adjustment = {x: -120, y: -8};
@@ -601,5 +600,40 @@
     };
 
     /* Enable this extension within pages */
-    $('*').mousedown(update).mouseup(update);
+    chrome_localStorage('options', function(json) {
+        var o = JSON.parse(json);
+        if (debug)
+            console.log(o);
+
+        setup_event_listener(o.enabling_method);
+    });
+
+    function setup_event_listener(o) {
+        function hide_tooltip(e) {
+            if (tooltip_status == 'shown' && $('#' + my_id).has(e.target).length == 0)
+                fadeout_tooltip();
+        }
+
+        if (o.method == 'select_then_key') {
+            $('*').keydown(function(e) {
+                if ((o.modkey == 'shift' && e.keyCode == 16) ||
+                    (o.modkey == 'ctrl' && e.keyCode == 17) ||
+                    (o.modkey == 'alt' && e.keyCode == 18))
+                    update(e);
+                console.log(e);
+            });
+            $('*').mousedown(hide_tooltip).mouseup(hide_tooltip);
+        } else if (o.method == 'select_with_key') {
+            function update_wrapper(e) {
+                if (e.ctrlKey)
+                    update(e);
+                else
+                    hide_tooltip(e);
+            }
+            $('*').mousedown(update_wrapper).mouseup(update_wrapper);
+        } else { // o.method == select
+            $('*').mousedown(update).mouseup(update);
+        }
+    }
+
 }) ();
