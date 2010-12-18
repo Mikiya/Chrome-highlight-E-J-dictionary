@@ -47,7 +47,8 @@ $(function() {
         autoOpen: false,
         modal: true,
         width: 450,
-        height: 200
+        height: 270,
+        buttons: { "OK": function() { $(this).dialog("close"); } }
     });
 
     /*
@@ -88,6 +89,11 @@ $(function() {
             wikipedia_en: true,
             google_translate: true
         }
+    });
+
+    $('#menubar #discard').click(function(e) {
+        set_options(localStorage['options']);
+        show_info('INFO', 'changes to options have been discarded.');
     });
 
     $('#menubar #default').click(function(e) {

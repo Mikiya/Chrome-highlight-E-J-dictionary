@@ -30,15 +30,23 @@
     var my_id = 'highlight_ej_search_tooltip';
     var tooltip_css_class = 'highlight_ej_search_box';
     var max_phrase_len = 1000;
-    var max_width = 320;
-    var item_size_margin = 20;
-    var tooltip_adjustment = {x: -120, y: -8};
-    var time_fading = 200;
-    var fadein_delay = 200;
-    var distance = 40;
-    var opacity = 0.9;
-    var button_text_color = 'white';
-    var button_text_hcolor = 'mistyrose';
+
+    var appearance = {
+        max_width: 320,
+        padding: 20,
+        adjust: {
+            x: -120,
+            y: -8
+        },
+        fade: {
+            duration: 200,
+            delay: 200,
+            distance: 40
+        },
+        opacity: 0.9,
+        button_text_color: 'white',
+        button_text_hcolor: 'mistyrose'
+    };
 
     /* Modules */
     var the_modules = new Array();
@@ -71,9 +79,9 @@
                 type: 'submit',
                 uuid: this.uuid
             });
-            input.css({'color': button_text_color});
-            input.mouseover(function(e) { input.css({ 'color': button_text_hcolor})});
-            input.mouseout(function(e) {input.css({ 'color': button_text_color})});
+            input.css({'color': appearance.button_text_color});
+            input.mouseover(function(e) { input.css({ 'color': appearance.button_text_hcolor})});
+            input.mouseout(function(e) {input.css({ 'color': appearance.button_text_color})});
             input.click(hide_tooltip);
             input.appendTo(the_form);
         };
@@ -142,11 +150,11 @@
             });
             console.log(title_area);
             title_area.css({
-                'color': button_text_color,
+                'color': appearance.button_text_color,
                 display: 'none'
             });
-            title_area.mouseover(function(e) { title_area.css({ 'color': button_text_hcolor})});
-            title_area.mouseout(function(e) {title_area.css({ 'color': button_text_color})});
+            title_area.mouseover(function(e) { title_area.css({ 'color': appearance.button_text_hcolor})});
+            title_area.mouseout(function(e) {title_area.css({ 'color': appearance.button_text_color})});
             title_area.click(hide_tooltip);
             title_area.appendTo(title_area_form);
 
@@ -218,7 +226,7 @@
 
                             var result_area = $('#' + my_id + ' blockquote[name=translate_result]');
                             result_area.show();
-                            result_area.css({padding: '4px', margin: '4px', opacity: opacity});
+                            result_area.css({padding: '4px', margin: '4px', opacity: appearance.opacity});
                             result_area.html(data.responseData.translatedText);
 
                             adjust_size_and_position();
@@ -239,8 +247,8 @@
 
             var result_area = $('#' + my_id + ' blockquote[name=translate_result]');
             result_area.css({width: 'auto'});
-            if (result_area.width() > (max_width - item_size_margin)) {
-                result_area.width(max_width - item_size_margin);
+            if (result_area.width() > (appearance.max_width - appearance.padding)) {
+                result_area.width(appearance.max_width - appearance.padding);
             }
             height += result_area.height();
             height += result_area.css('padding-top') + result_area.css('padding-bottom');
@@ -370,7 +378,7 @@
     function adjust_input_size(uuid) {
         var the_input = $('#' + my_id + ' input[uuid=' + uuid + ']');
         the_input.css({width: 'auto', 'word-wrap': 'normal'});
-        var width = Math.min(max_width - item_size_margin, the_input.width());
+        var width = Math.min(appearance.max_width - appearance.padding, the_input.width());
         wrap = the_input.width() == width ? 'normal' : 'break-word';
         the_input.css({width: width, 'word-wrap': wrap});
 
@@ -493,13 +501,13 @@
         }
 
         // Finally adjust tooltip size.
-        var left = p.left + tooltip_adjustment.x;
+        var left = p.left + appearance.adjust.x;
         if (left < 0)
             left = 0;
         if (left + the_tooltip.width() > saved_page_width)
             left = saved_page_width - the_tooltip.width();
         console.log(saved_page_width + ":" + left + ":" + the_tooltip.width());
-        var top = p.top - the_tooltip.height() + tooltip_adjustment.y;
+        var top = p.top - the_tooltip.height() + appearance.adjust.y;
         /*
          * I skip the following code, as it's not a big problem which we cannot
          * see translation for small portion within a page, compared to making it
@@ -532,13 +540,13 @@
 
         the_timer = setTimeout(function() {
             the_tooltip.animate({
-                left: '+=' + distance + 'px',
-                opacity: opacity
-            }, time_fading, 'swing', function() {
+                left: '+=' + appearance.fade.distance + 'px',
+                opacity: appearance.opacity
+            }, appearance.fade.duration, 'swing', function() {
                 // once the animation is complete, set the tracker variables
                 tooltip_status = 'shown';
             });
-        }, fadein_delay);
+        }, appearance.fade.delay);
     }
 
     function hide_tooltip() {
@@ -555,9 +563,9 @@
         var the_tooltip = $('#' + my_id);
 
         the_tooltip.animate({
-            left: '+=' + distance + 'px',
+            left: '+=' + appearance.fade.distance + 'px',
             opacity: 0
-        }, time_fading, 'swing', function() {
+        }, appearance.fade.duration, 'swing', function() {
             // once the animation is complete, set the tracker variables
             tooltip_status = 'hidden';
             words_displayed = '';
