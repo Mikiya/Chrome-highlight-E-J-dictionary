@@ -511,9 +511,10 @@
         }
 
         // Finally adjust tooltip size.
-        var left = p.left + appearance.adjust.x - appearance.fade.distance;
+        var left = p.left + appearance.adjust.x;
         if (left < 0)
             left = 0;
+        left = left - appearance.fade.distance;
         if (left + the_tooltip.width() > saved_page_width)
             left = saved_page_width - the_tooltip.width();
         var top = p.top - the_tooltip.height() + appearance.adjust.y;
