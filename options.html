@@ -17,7 +17,7 @@
   <div class="ui-widget" id="statusbar" style="width: 400px; height:32px; margin-left : auto; margin-right : auto; padding 8px;">
     <div class="ui-state-highlight ui-corner-all" style="padding: 0; font-size: 14px;"> 
       <p style="margin: 6px">
-        <span class="ui-icon ui-icon-info" style="float: left; margin-right: 0.5em; margin-left: 0.5em" id="icon"></span>
+        <span id="statusicon" class="ui-icon ui-icon-info" style="float: left; margin-right: 0.5em; margin-left: 0.5em" id="icon"></span>
         <strong id="message_title"></strong>&nbsp;<span id="message" style="margin-left : auto; margin-right : auto;"></span>
       </p>
     </div>
@@ -47,6 +47,31 @@
     <input type="radio" name="popup_enable_modifier_key" value="alt">Alt</input>
   </fieldset>
   <input type="radio" name="popup_enable_method" value="select_with_key">selecting the text with ctrl key pressed.</input>
+</fieldset>
+
+<fieldset id="appearance">
+  <legend>Appearance
+  </legend>
+  <label for="max_width">Search box width (px)</label>
+  <input id="max_width" />
+  <label for="opacity">Opacity (0~1.0)</label>
+  <input id="opacity" />
+  <fieldset id="fade">
+    <legend>Fade</legend>
+    <label for="duration">Duration (msec)</label>
+    <input id="duration" />
+    <label for="delay">Delay (msec)</label>
+    <input id="delay" />
+    <label for="distance">Distance (px)</label>
+    <input id="distance" />
+  </fieldset>
+  <fieldset id="button">
+    <legend>Button</legend>
+    <label for="button_text_color">Text color</label>
+    <input id="button_text_color"/>
+    <label for="button_text_hcolor">Text hover color</label>
+    <input id="button_text_hcolor"/>
+  </fieldset>
 </fieldset>
 
 </ul>

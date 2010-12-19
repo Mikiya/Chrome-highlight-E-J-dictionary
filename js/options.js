@@ -58,6 +58,18 @@ $(function() {
     $('#statusbar').hide();
 
     function show_info(title, msg) {
+        $('#statusbar div').attr('class', 'ui-state-highlight ui-corner-all');
+        $('#statusbar #statusicon').attr('class', 'ui-icon ui-icon-info');
+        show_msg(title, msg);
+    }
+
+    function show_alert(title, msg) {
+        $('#statusbar div').attr('class', 'ui-state-error ui-corner-all');
+        $('#statusbar #statusicon').attr('class', 'ui-icon ui-icon-alert');
+        show_msg(title, msg);
+    };
+
+    function show_msg(title, msg) {
         title = title.length > 0 ? title + ':' : '';
         $('#statusbar #message_title').text(title);
         $('#statusbar span#message').text(msg);
@@ -67,7 +79,7 @@ $(function() {
 
         $('#statusbar').show('drop', {}, 600, function() {});
         statusbar_timer = setTimeout(function() {
-            $( "#statusbar" ).hide('drop', {}, 600, function() {});
+            $( "#statusbar" ).hide('drop', {direction: 'right'}, 600, function() {});
         }, 4000 );
     }
 
@@ -88,6 +100,17 @@ $(function() {
             eow: true,
             wikipedia_en: true,
             google_translate: true
+        },
+        appearance: {
+            max_width: 320,
+            opacity: 0.9,
+            fade: {
+                duration: 200,
+                delay: 200,
+                distance: 40
+            },
+            button_text_color: 'white',
+            button_text_hcolor: 'mistyrose'
         }
     });
 
@@ -103,6 +126,7 @@ $(function() {
 
     $('#menubar #close').click(function(e) {
         window.close();
+
     });
 
     function set_modkey_button_status(enabling_method) {
@@ -120,8 +144,12 @@ $(function() {
     });
 
     $('#menubar #save').click(function(e) {
-        localStorage['options'] = JSON.stringify(get_options());
-        show_info('INFO', 'settings saved.');
+        if(!validate_options()) {
+            show_alert('ERROR', 'some values appears to be invalid.');
+        } else {
+            localStorage['options'] = JSON.stringify(get_options());
+            show_info('INFO', 'settings saved.');
+        }
     });
 
     function get_options() {
@@ -135,12 +163,25 @@ $(function() {
                 eow: $('#enabled_builtin_engines input[name=eow]:checked').length == 1,
                 wikipedia_en: $('#enabled_builtin_engines input[name=wikipedia_en]:checked').length == 1,
                 google_translate: $('#enabled_builtin_engines input[name=google_translate]:checked').length == 1
+            },
+            appearance: {
+                max_width: $('#appearance #max_width').val(),
+                opacity: $('#appearance #opacity').val(),
+                fade: {
+                    duration: $('#appearance #fade #duration').val(),
+                    delay: $('#appearance #fade #delay').val(),
+                    distance: $('#appearance #fade #distance').val()
+                },
+                button_text_color: $('#appearance #button #button_text_color').val(),
+                button_text_hcolor: $('#appearance #button #button_text_hcolor').val()
             }
         };
     }
 
     function set_options(json) {
-        var o = JSON.parse(json);
+        var o = JSON.parse(default_settings);
+        $.extend(o, JSON.parse(json));
+
         $('#enabling_method input[name=popup_enable_method][value=' + o.enabling_method.method + ']').attr('checked', 'checked');
         $('#enabling_method input[name=popup_enable_modifier_key][value=' + o.enabling_method.modkey + ']').attr('checked', 'checked');
         set_modkey_button_status(o.enabling_method.method);
@@ -149,7 +190,122 @@ $(function() {
         $('#enabled_builtin_engines input[name=eow]').attr('checked', o.enabled_builtin_engines.eow);
         $('#enabled_builtin_engines input[name=wikipedia_en]').attr('checked', o.enabled_builtin_engines.wikipedia_en);
         $('#enabled_builtin_engines input[name=google_translate]').attr('checked', o.enabled_builtin_engines.google_translate);
+
+        $('#appearance #max_width').val(o.appearance.max_width);
+        $('#appearance #opacity').val(o.appearance.opacity);
+        $('#appearance #fade #duration').val(o.appearance.fade.duration);
+        $('#appearance #fade #delay').val(o.appearance.fade.delay);
+        $('#appearance #fade #distance').val(o.appearance.fade.distance);
+        $('#appearance #button #button_text_color').val(o.appearance.button_text_color);
+        $('#appearance #button #button_text_hcolor').val(o.appearance.button_text_hcolor);
     }
 
-    set_options(localStorage['options']);
+    var regex_collection = {
+        not_empty: {
+            exp: /./,
+            error_msg: 'Must not be empty.'
+        },
+        float_0_to_1: {
+            exp: /^1$|^0(\.\d+)?$/,
+            error_msg: 'Specify 0 ~ 1 in float.'
+        },
+        digits_only: {
+            exp: /^\d+$/,
+            error_msg: 'You must input only digits.'
+        },
+        html_color: {
+            exp: /^[A-Za-z]+$|^#?[\da-f]{3}([\da-f]{3})?$/i,
+            error_msg: 'Incorrect HTML color format.'
+        }
+    };
+
+    var option_validators = [
+        {
+            selector: '#appearance #max_width',
+            regex: regex_collection.digits_only,
+            range: {min: 200, max: 1000}
+        },
+        {
+            selector: '#appearance #opacity',
+            regex: regex_collection.float_0_to_1
+        },
+        {
+            selector: '#appearance #fade #duration',
+            regex: regex_collection.digits_only,
+            range: {min: 0, max: 10000}
+        },
+        {
+            selector: '#appearance #fade #delay',
+            regex: regex_collection.digits_only,
+            range: {min: 0, max: 5000}
+        },
+        {
+            selector: '#appearance #fade #distance',
+            regex: regex_collection.digits_only,
+            range: {min: 0, max: 1000}
+        },
+        {
+            selector: '#appearance #button #button_text_color',
+            regex: regex_collection.html_color
+        },
+        {
+            selector: '#appearance #button #button_text_hcolor',
+            regex: regex_collection.html_color
+        },
+    ];
+
+    function validate_options() {
+        var ok = true;
+        $('input').next('#error_msg').remove();
+
+        for (var i = 0; i < option_validators.length; i++) {
+            var v = option_validators[i];
+            var val = $(v.selector).val();
+            var error = !val.match(v.regex.exp) ? 'invalid' : (
+                (
+                    v.range ? (
+                        (v.range.max ? parseInt(val) > v.range.max : false) ||
+                            (v.range.min ? parseInt(val) < v.range.min : false)
+                    ) : false
+                ) ? 'out-of-range' : null
+            )
+            if (error) {
+                ok = false;
+                $(v.selector).after(
+                    $('<span>').attr({
+                        id: 'error_msg'
+                    }).css({
+                        color: 'red',
+                        'margin-left': '8px',
+                        'margin-right': '24px'
+                    }).text(
+                        error == 'invalid' ? v.regex.error_msg : (
+                            'Out of range: '
+                                + (v.range.min || '')
+                                + ' ~ '
+                                + (v.range.max || '')
+                        )
+                    )
+                ).css({
+                    'border-color': 'red'
+                }).focus(function() {
+                    $(this).unbind('focus');
+                    $(this).css({'border-color': 'black'});
+                    $(this).next('#error_msg').remove();
+                });
+
+            }
+        }
+
+        return ok;
+    }
+
+    set_options(
+        JSON.stringify(
+            $.extend(
+                default_settings,
+                JSON.parse(localStorage['options'])
+            )
+        )
+    )
 });

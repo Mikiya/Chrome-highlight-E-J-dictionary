@@ -622,6 +622,7 @@
             console.log(o);
 
         setup_modules(o.enabled_builtin_engines);
+        $.extend(appearance, o.appearance);
         setup_event_listener(o.enabling_method);
     });
 
