@@ -147,7 +147,7 @@ $(function() {
     }
 
     $('#enabling_method [name=popup_enable_method]').click(function(e) {
-        set_modkey_button_status(e.target.value);
+//        set_modkey_button_status(e.target.value);
     });
 
     $('#menubar #save').click(function(e) {

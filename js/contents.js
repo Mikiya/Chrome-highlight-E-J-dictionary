@@ -40,7 +40,7 @@
         },
         background: {
             gradiation_top: 'slategray',
-            gradiation_bottom: 'midnightblue'
+            gradiation_bottom: 'black'
         },
         fade: {
             duration: 200,
@@ -511,7 +511,7 @@
         }
 
         // Finally adjust tooltip size.
-        var left = p.left + appearance.adjust.x;
+        var left = p.left + appearance.adjust.x - appearance.fade.distance;
         if (left < 0)
             left = 0;
         if (left + the_tooltip.width() > saved_page_width)
