@@ -13,9 +13,9 @@ div.highlight_ej_search_tooltip {
     padding: 12px !important;
     margin: 0 !important;
     color: #fff !important;
-    background: midnightblue !important;
     border-radius: 10px !important;
-    background: -webkit-gradient(linear, left top, left bottom, from(slategray), to(midnightblue)) !important;
+    background: midnightblue;
+    background: -webkit-gradient(linear, left top, left bottom, from(slategray), to(midnightblue));
     overflow : visible !important;
     font-family: sans-serif !important;
 }

@@ -90,29 +90,36 @@ $(function() {
         $('#copyright').dialog('open');
     });
 
-    var default_settings = JSON.stringify({
-        enabling_method: {
-            method: 'select',
-            modkey: 'shift'
-        },
-        enabled_builtin_engines: {
-            iknow: true,
-            eow: true,
-            wikipedia_en: true,
-            google_translate: true
-        },
-        appearance: {
-            max_width: 320,
-            opacity: 0.9,
-            fade: {
-                duration: 200,
-                delay: 200,
-                distance: 40
+    function default_settings() {
+        return {
+            enabling_method: {
+                method: 'select',
+                modkey: 'shift'
             },
-            button_text_color: 'white',
-            button_text_hcolor: 'mistyrose'
-        }
-    });
+            enabled_builtin_engines: {
+                iknow: true,
+                eow: true,
+                wikipedia_en: true,
+                google_translate: true
+            },
+            appearance: {
+                max_width: 320,
+                opacity: 0.9,
+                background: {
+                    gradiation_top: 'slategray',
+                    gradiation_bottom: 'midnightblue'
+                },
+                dummy: 123,
+                fade: {
+                    duration: 200,
+                    delay: 200,
+                    distance: 40
+                },
+                button_text_color: 'white',
+                button_text_hcolor: 'mistyrose'
+            }
+        };
+    }
 
     $('#menubar #discard').click(function(e) {
         set_options(localStorage['options']);
@@ -120,7 +127,7 @@ $(function() {
     });
 
     $('#menubar #default').click(function(e) {
-        set_options(default_settings);
+        set_options(JSON.stringify(default_settings()));
         show_info('INFO', 'default settings are loaded.');
     });
 
@@ -167,6 +174,10 @@ $(function() {
             appearance: {
                 max_width: $('#appearance #max_width').val(),
                 opacity: $('#appearance #opacity').val(),
+                background: {
+                    gradiation_top: $('#appearance #background #gradiation_top').val(),
+                    gradiation_bottom: $('#appearance #background #gradiation_bottom').val()
+                },
                 fade: {
                     duration: $('#appearance #fade #duration').val(),
                     delay: $('#appearance #fade #delay').val(),
@@ -179,8 +190,8 @@ $(function() {
     }
 
     function set_options(json) {
-        var o = JSON.parse(default_settings);
-        $.extend(o, JSON.parse(json));
+        var o = default_settings();
+        $.extend(true, o, JSON.parse(json));
 
         $('#enabling_method input[name=popup_enable_method][value=' + o.enabling_method.method + ']').attr('checked', 'checked');
         $('#enabling_method input[name=popup_enable_modifier_key][value=' + o.enabling_method.modkey + ']').attr('checked', 'checked');
@@ -193,6 +204,8 @@ $(function() {
 
         $('#appearance #max_width').val(o.appearance.max_width);
         $('#appearance #opacity').val(o.appearance.opacity);
+        $('#appearance #background #gradiation_top').val(o.appearance.background.gradiation_top);
+        $('#appearance #background #gradiation_bottom').val(o.appearance.background.gradiation_bottom);
         $('#appearance #fade #duration').val(o.appearance.fade.duration);
         $('#appearance #fade #delay').val(o.appearance.fade.delay);
         $('#appearance #fade #distance').val(o.appearance.fade.distance);
@@ -230,6 +243,14 @@ $(function() {
             regex: regex_collection.float_0_to_1
         },
         {
+            selector: '#appearance #background #gradiation_top',
+            regex: regex_collection.html_color
+        },
+        {
+            selector: '#appearance #background #gradiation_bottom',
+            regex: regex_collection.html_color
+        },
+        {
             selector: '#appearance #fade #duration',
             regex: regex_collection.digits_only,
             range: {min: 0, max: 10000}
@@ -261,6 +282,9 @@ $(function() {
         for (var i = 0; i < option_validators.length; i++) {
             var v = option_validators[i];
             var val = $(v.selector).val();
+            if (!val) {
+                val = ''; // the value could be empty
+            }
             var error = !val.match(v.regex.exp) ? 'invalid' : (
                 (
                     v.range ? (
@@ -300,12 +324,5 @@ $(function() {
         return ok;
     }
 
-    set_options(
-        JSON.stringify(
-            $.extend(
-                default_settings,
-                JSON.parse(localStorage['options'])
-            )
-        )
-    )
+    set_options(localStorage['options']);
 });

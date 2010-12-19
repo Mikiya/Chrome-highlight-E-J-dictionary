@@ -38,6 +38,10 @@
             x: -120,
             y: -8
         },
+        background: {
+            gradiation_top: 'slategray',
+            gradiation_bottom: 'midnightblue'
+        },
         fade: {
             duration: 200,
             delay: 200,
@@ -148,7 +152,6 @@
                 name: 'translate_title',
                 uuid: this.uuid
             });
-            console.log(title_area);
             title_area.css({
                 'color': appearance.button_text_color,
                 display: 'none'
@@ -296,7 +299,7 @@
     }
     
     /* The global variables */
-    var debug = true;
+    var debug = false;
     var tooltip_status = 'hidden';
     var words = '';
     var words_displayed = '';
@@ -398,6 +401,14 @@
         });
         var tooltip_mid_element = $('<div />');
         tooltip_mid_element.attr('class', tooltip_css_class);
+        var gradiation = (
+            '-webkit-gradient(linear, left top, left bottom, from('
+                + appearance.background.gradiation_top
+                + '), to('
+                + appearance.background.gradiation_bottom
+                + '))'
+        );
+        tooltip_mid_element.css({background: gradiation});
         tooltip_mid_element.appendTo(tooltip_element);
         var the_list = $('<ul />');
         the_list.css({
@@ -409,7 +420,6 @@
         the_list.appendTo(tooltip_mid_element);
 
         for (var i = 0; i < the_modules.length; i++) {
-            console.log(the_modules[i].name);
             the_modules[i].setup(the_list);
         }
 
@@ -506,7 +516,6 @@
             left = 0;
         if (left + the_tooltip.width() > saved_page_width)
             left = saved_page_width - the_tooltip.width();
-        console.log(saved_page_width + ":" + left + ":" + the_tooltip.width());
         var top = p.top - the_tooltip.height() + appearance.adjust.y;
         /*
          * I skip the following code, as it's not a big problem which we cannot
@@ -619,10 +628,10 @@
     chrome_localStorage('options', function(json) {
         var o = JSON.parse(json);
         if (debug)
-            console.log(o);
+            console.log(json);
 
         setup_modules(o.enabled_builtin_engines);
-        $.extend(appearance, o.appearance);
+        $.extend(true, appearance, o.appearance);
         setup_event_listener(o.enabling_method);
     });
 
