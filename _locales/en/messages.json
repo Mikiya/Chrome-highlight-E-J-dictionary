@@ -1,0 +1,70 @@
+{
+    "save_button": {
+        "message": "Save current settings",
+        "description": "A label for the button to save settings."
+    },
+    "discard_button": {
+        "message": "Discard changes",
+        "description": "A label for the button to discard changes."
+    },
+    "defaults_button": {
+        "message": "Load defaults",
+        "description": "A label for the button to load default settings."
+    },
+    "about_button": {
+        "message": "About this extension",
+        "description": "A label for the button to display about dialogue."
+    },
+    "close_button": {
+        "message": "Close this window",
+        "description": "A label for the button to close option window."
+    },
+    "page_title": {
+        "message": "Highlight E-J Dictonary Options",
+        "description": "The page title."
+    },
+    "general_menu": {
+        "message": "General Settings",
+        "description": "A general settings menu."
+    },
+    "popup_by": {
+        "message": "Display popup by",
+        "description": "Submenu"
+    },
+    "selecting_text": {
+        "message": "selecting the text.",
+        "description": "List item"
+    },
+    "select_then_key": {
+        "message": "selecting the text then press the following key.",
+        "description": "List item"
+    },
+    "select_with_ctrl": {
+        "message": "selecting the text with ctrl key pressed.",
+        "description": "List item"
+    },
+    "must_not_be_empty": {
+        "message": "Must not be empty."
+    },
+    "zero_to_one": {
+        "message": "Specify 0 ~ 1 in float."
+    },
+    "only_digits": {
+        "message": "You must input only digits."
+    },
+    "incorrect_html_color": {
+        "message": "Incorrect HTML color format."
+    },
+    "error_invalid_val": {
+        "message": "some values appears to be invalid."
+    },
+    "info_settings_saved": {
+        "message": "settings saved."
+    },
+    "info_discarded": {
+        "message": "changes to options have been discarded."
+    },
+    "info_loaded_defaults": {
+        "message": "default settings are loaded."
+    }
+}

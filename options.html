@@ -11,7 +11,7 @@
 </head>
 <body>
 
-<h2>Highlight E-J Dictonary Options</h2>
+<h2 msg="page_title">Highlight E-J Dictonary Options</h2>
 
 <div style="height: 32px">
   <div class="ui-widget" id="statusbar" style="width: 400px; height:32px; margin-left : auto; margin-right : auto; padding 8px;">
@@ -25,28 +25,28 @@
 </div>
 
 <div id="menubar" style="float:left; width:140px">
-<button class="menu_button" id="save">Save current settings</button><br/>
-<button class="menu_button" id="discard">Discard changes</button><br/>
-<button class="menu_button" id="default">Load defaults</button></br>
-<button class="menu_button" id="about">About this extension</button></br>
-<button class="menu_button" id="close">Close this window</button>
+<button class="menu_button" id="save" msg="save_button">Save current settings</button><br/>
+<button class="menu_button" id="discard" msg="discard_button">Discard changes</button><br/>
+<button class="menu_button" id="default" msg="defaults_button">Load defaults</button></br>
+<button class="menu_button" id="about" msg="about_button">About this extension</button></br>
+<button class="menu_button" id="close" msg="close_button"></button>
 </div>
 <div id="config_area" style="margin-left:20px; position: absolute; left: 140px">
 
 <div id="accordion" style="font-size:14px">
-  <h3><a href="#">General Settings</a></h3>
+  <h3><a href="#" msg="general_menu">General Settings</a></h3>
   <div id="general_settings">
 <fieldset id="enabling_method">
-  <legend>Display popup by</legend>
-  <input type="radio" name="popup_enable_method" value="select">selecting the text.</input><br/>
-  <input type="radio" name="popup_enable_method" value="select_then_key" checked>selecting the text then press the following key.</input><br/>
+  <legend msg="popup_by">Display popup by</legend>
+  <input type="radio" name="popup_enable_method" value="select"/><span msg="selecting_text">selecting the text.</span><br/>
+  <input type="radio" name="popup_enable_method" value="select_then_key"/><span msg="select_then_key">selecting the text then press the following key.</span><br/>
   <fieldset id="modifier_key" style="margin-left:20px">
     <legend>Key</legend>
-    <input type="radio" name="popup_enable_modifier_key" value="shift" checked>Shift</input>
+    <input type="radio" name="popup_enable_modifier_key" value="shift">Shift</input>
     <input type="radio" name="popup_enable_modifier_key" value="ctrl">Ctrl</input>
     <input type="radio" name="popup_enable_modifier_key" value="alt">Alt</input>
   </fieldset>
-  <input type="radio" name="popup_enable_method" value="select_with_key">selecting the text with ctrl key pressed.</input>
+  <input type="radio" name="popup_enable_method" value="select_with_key"/><span msg="select_with_ctrl">selecting the text with ctrl key pressed.</span>
 </fieldset>
 
 <fieldset id="appearance">

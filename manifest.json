@@ -11,5 +11,6 @@
   ],
   "permissions": [ "http://*/*", "https://*/*", "tabs", "unlimitedStorage" ],
   "background_page": "background.html",
-  "options_page": "options.html"
+  "options_page": "options.html",
+  "default_locale": "en"
 }

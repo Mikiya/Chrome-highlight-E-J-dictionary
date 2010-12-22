@@ -1,0 +1,59 @@
+{
+    "save_button": {
+        "message": "設定を保存"
+    },
+    "discard_button": {
+        "message": "変更を破棄"
+    },
+    "defaults_button": {
+        "message": "デフォルト値で初期化"
+    },
+    "about_button": {
+        "message": "この拡張について"
+    },
+    "close_button": {
+        "message": "閉じる"
+    },
+    "page_title": {
+        "message": "Highlight E-J Dictonaryのオプション"
+    },
+    "general_menu": {
+        "message": "一般設定"
+    },
+    "popup_by": {
+        "message": "次のアクションでポップアップを表示"
+    },
+    "selecting_text": {
+        "message": "テキストを選択する。"
+    },
+    "select_then_key": {
+        "message": "テキストを選択してから次のキーを押す。"
+    },
+    "select_with_ctrl": {
+        "message": "CTRLキーを押しながらテキストを選択する。"
+    },
+    "must_not_be_empty": {
+        "message": "空欄ではいけません。"
+    },
+    "zero_to_one": {
+        "message": "0〜1の範囲で小数を指定してください。"
+    },
+    "only_digits": {
+        "message": "入力できるのは数値だけです。"
+    },
+    "incorrect_html_color": {
+        "message": "HTMLにおける色の指定が正しくありません。"
+    },
+    "error_invalid_val": {
+        "message": "不正な値が存在します。"
+    },
+    "info_settings_saved": {
+        "message": "設定を保存しました。"
+    },
+    "info_discarded": {
+        "message": "オプションの変更を破棄しました。"
+    },
+    "info_loaded_defaults": {
+        "message": "デフォルトの設定をロードしました。"
+    }
+}

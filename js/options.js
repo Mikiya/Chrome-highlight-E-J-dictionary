@@ -17,60 +17,28 @@
  * along with this program.    If not, see <http://www.gnu.org/licenses/>.
  */
 
-var val = {desc: 'this is a test', struct: {x: 1, y: 2}, chars: ['a', 'b']};
-localStorage.test = JSON.stringify(val);
-console.log(localStorage.test);
-
 $(function() {
-    $( "#accordion" ).accordion({
-        autoHeight: false,
-        navigation: true
-    });
-
-    copyright = $('#copyright');
-    copyright .css({
-        position: 'relative',
-        'text-align': 'center',
-        width: '400px',
-        margin: '0 auto 0 auto',
-        padding: '20px'
-    });
-
-    width = parseInt($(window).width()) - 150 - 40;
-    if (width < 320)
-        width = 320;
-    $('#config_area').width(width);
-
-    $('#menubar button').button().css({'font-size': '14px', width: '140px'});
-
-    $('#copyright').dialog({
-        autoOpen: false,
-        modal: true,
-        width: 450,
-        height: 270,
-        buttons: { "OK": function() { $(this).dialog("close"); } }
-    });
-
     /*
      * Status bar functions
      */
     var statusbar_timer = null;
     $('#statusbar').hide();
 
-    function show_info(title, msg) {
+    function show_info(msg) {
         $('#statusbar div').attr('class', 'ui-state-highlight ui-corner-all');
         $('#statusbar #statusicon').attr('class', 'ui-icon ui-icon-info');
-        show_msg(title, msg);
+        show_msg('INFO', msg);
     }
 
-    function show_alert(title, msg) {
+    function show_error(msg) {
         $('#statusbar div').attr('class', 'ui-state-error ui-corner-all');
         $('#statusbar #statusicon').attr('class', 'ui-icon ui-icon-alert');
-        show_msg(title, msg);
+        show_msg('ERROR', msg);
     };
 
     function show_msg(title, msg) {
         title = title.length > 0 ? title + ':' : '';
+        msg = chrome.i18n.getMessage(msg);
         $('#statusbar #message_title').text(title);
         $('#statusbar span#message').text(msg);
 
@@ -123,12 +91,12 @@ $(function() {
 
     $('#menubar #discard').click(function(e) {
         set_options(localStorage['options']);
-        show_info('INFO', 'changes to options have been discarded.');
+        show_info('info_discarded');
     });
 
     $('#menubar #default').click(function(e) {
         set_options(JSON.stringify(default_settings()));
-        show_info('INFO', 'default settings are loaded.');
+        show_info('info_loaded_defaults');
     });
 
     $('#menubar #close').click(function(e) {
@@ -152,10 +120,10 @@ $(function() {
 
     $('#menubar #save').click(function(e) {
         if(!validate_options()) {
-            show_alert('ERROR', 'some values appears to be invalid.');
+            show_error('error_invalid_val');
         } else {
             localStorage['options'] = JSON.stringify(get_options());
-            show_info('INFO', 'settings saved.');
+            show_info('info_settings_saved');
         }
     });
 
@@ -195,7 +163,7 @@ $(function() {
 
         $('#enabling_method input[name=popup_enable_method][value=' + o.enabling_method.method + ']').attr('checked', 'checked');
         $('#enabling_method input[name=popup_enable_modifier_key][value=' + o.enabling_method.modkey + ']').attr('checked', 'checked');
-        set_modkey_button_status(o.enabling_method.method);
+        //set_modkey_button_status(o.enabling_method.method);
 
         $('#enabled_builtin_engines input[name=iknow]').attr('checked', o.enabled_builtin_engines.iknow);
         $('#enabled_builtin_engines input[name=eow]').attr('checked', o.enabled_builtin_engines.eow);
@@ -216,19 +184,19 @@ $(function() {
     var regex_collection = {
         not_empty: {
             exp: /./,
-            error_msg: 'Must not be empty.'
+            error_msg: chrome.i18n.getMessage('must_not_be_empty')
         },
         float_0_to_1: {
             exp: /^1$|^0(\.\d+)?$/,
-            error_msg: 'Specify 0 ~ 1 in float.'
+            error_msg: chrome.i18n.getMessage('zero_to_one')
         },
         digits_only: {
             exp: /^\d+$/,
-            error_msg: 'You must input only digits.'
+            error_msg: chrome.i18n.getMessage('only_digits')
         },
         html_color: {
             exp: /^[A-Za-z]+$|^#?[\da-f]{3}([\da-f]{3})?$/i,
-            error_msg: 'Incorrect HTML color format.'
+            error_msg: chrome.i18n.getMessage('incorrect_html_color')
         }
     };
 
@@ -322,7 +290,51 @@ $(function() {
         }
 
         return ok;
+    };
+
+    function load_i18n_messages() {
+        $('[msg]').each(function() {
+            console.log($(this).attr('msg'));
+            console.log(chrome.i18n.getMessage($(this).attr('msg')));
+            $(this).text(
+                chrome.i18n.getMessage($(this).attr('msg'))
+            );
+        });
     }
+
+    /*
+     * Load localized messages
+     */
+    load_i18n_messages();
+
+    $( "#accordion" ).accordion({
+        autoHeight: false,
+        navigation: true
+    });
+
+    copyright = $('#copyright');
+    copyright .css({
+        position: 'relative',
+        'text-align': 'center',
+        width: '400px',
+        margin: '0 auto 0 auto',
+        padding: '20px'
+    });
+
+    width = parseInt($(window).width()) - 150 - 40;
+    if (width < 320)
+        width = 320;
+    $('#config_area').width(width);
+
+    $('#menubar button').button().css({'font-size': '14px', width: '140px'});
+
+    $('#copyright').dialog({
+        autoOpen: false,
+        modal: true,
+        width: 450,
+        height: 270,
+        buttons: { "OK": function() { $(this).dialog("close"); } }
+    });
 
     set_options(localStorage['options']);
 });
