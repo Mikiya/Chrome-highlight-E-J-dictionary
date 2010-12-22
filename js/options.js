@@ -75,7 +75,7 @@ $(function() {
                 opacity: 0.9,
                 background: {
                     gradiation_top: 'slategray',
-                    gradiation_bottom: 'midnightblue'
+                    gradiation_bottom: 'black'
                 },
                 dummy: 123,
                 fade: {
@@ -84,7 +84,7 @@ $(function() {
                     distance: 40
                 },
                 button_text_color: 'white',
-                button_text_hcolor: 'mistyrose'
+                button_text_hcolor: 'red'
             }
         };
     }
@@ -293,12 +293,16 @@ $(function() {
     };
 
     function load_i18n_messages() {
-        $('[msg]').each(function() {
-            console.log($(this).attr('msg'));
-            console.log(chrome.i18n.getMessage($(this).attr('msg')));
-            $(this).text(
-                chrome.i18n.getMessage($(this).attr('msg'))
+        function set_localized_message(obj, attr) {
+            $(obj).text(
+                chrome.i18n.getMessage($(obj).attr(attr))
             );
+        }
+        $('[msg]').each(function() {
+            set_localized_message(this, 'msg');
+        });
+        $('[for]').each(function() {
+            set_localized_message(this, 'for');
         });
     }
 

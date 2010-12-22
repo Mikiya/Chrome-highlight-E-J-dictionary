@@ -66,5 +66,50 @@
     },
     "info_loaded_defaults": {
         "message": "default settings are loaded."
+    },
+    "appearance_menu": {
+        "message": "Appearance"
+    },
+    "max_width": {
+        "message": "Search box width (px)"
+    },
+    "opacity": {
+        "message": "Opacity (0~1.0)"
+    },
+    "gradiation_menu": {
+        "message": "Background gradiation"
+    },
+    "gradiation_top": {
+        "message": "Top color"
+    },
+    "gradiation_bottom": {
+        "message": "Bottom color"
+    },
+    "fade": {
+        "message": "Fade"
+    },
+    "duration": {
+        "message": "Duration (msec)"
+    },
+    "delay": {
+        "message": "Delay (msec)"
+    },
+    "disatance": {
+        "message": "Distance (px)"
+    },
+    "button": {
+        "message": "Button"
+    },
+    "button_text_color": {
+        "message": "Text color"
+    },
+    "button_text_hcolor": {
+        "message": "Text hover color"
+    },
+    "search_engines_menu": {
+        "message": "Search Engines"
+    },
+    "builtin_engines": {
+        "message": "Enabled builtin engines"
     }
 }

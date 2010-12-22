@@ -55,5 +55,50 @@
     },
     "info_loaded_defaults": {
         "message": "デフォルトの設定をロードしました。"
+    },
+    "appearance_menu": {
+        "message": "外観"
+    },
+    "max_width": {
+        "message": "検索窓の最大幅 (px)"
+    },
+    "opacity": {
+        "message": "透明度 (0~1.0)"
+    },
+    "gradiation_menu": {
+        "message": "背景のグラディエーション"
+    },
+    "gradiation_top": {
+        "message": "上の色"
+    },
+    "gradiation_bottom": {
+        "message": "下の色"
+    },
+    "fade": {
+        "message": "フェードイン・フェードアウト"
+    },
+    "duration": {
+        "message": "持続時間 (msec)"
+    },
+    "delay": {
+        "message": "遅延 (msec)"
+    },
+    "disatance": {
+        "message": "距離 (px)"
+    },
+    "button": {
+        "message": "ボタン"
+    },
+    "button_text_color": {
+        "message": "文字の色"
+    },
+    "button_text_hcolor": {
+        "message": "カーソルを合わせたときの文字の色"
+    },
+    "search_engines_menu": {
+        "message": "辞書設定"
+    },
+    "builtin_engines": {
+        "message": "標準辞書"
     }
 }
