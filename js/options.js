@@ -19,36 +19,57 @@
 
 $(function() {
     /*
+     * Load localized messages
+     */
+    load_i18n_messages();
+
+    /*
      * Status bar functions
      */
     var statusbar_timer = null;
     $('#statusbar').hide();
 
+    function show_info_low(id, msg) {
+        $('#' + id + ' div').attr('class', 'ui-state-highlight ui-corner-all');
+        $('#' + id + ' #statusicon').attr('class', 'ui-icon ui-icon-info');
+        show_msg(id, 'INFO', msg);
+    }
+
     function show_info(msg) {
-        $('#statusbar div').attr('class', 'ui-state-highlight ui-corner-all');
-        $('#statusbar #statusicon').attr('class', 'ui-icon ui-icon-info');
-        show_msg('INFO', msg);
+        show_info_low('statusbar', msg);
+    }
+
+    function show_error_low(id, msg) {
+        $('#' + id +' div').attr('class', 'ui-state-error ui-corner-all');
+        $('#' + id + ' #statusicon').attr('class', 'ui-icon ui-icon-alert');
+        show_msg(id, 'ERROR', msg);
     }
 
     function show_error(msg) {
-        $('#statusbar div').attr('class', 'ui-state-error ui-corner-all');
-        $('#statusbar #statusicon').attr('class', 'ui-icon ui-icon-alert');
-        show_msg('ERROR', msg);
-    };
+        show_error_low('statusbar', msg);
+    }
 
-    function show_msg(title, msg) {
+    function show_msg(id, title, msg) {
         title = title.length > 0 ? title + ':' : '';
         msg = chrome.i18n.getMessage(msg);
-        $('#statusbar #message_title').text(title);
-        $('#statusbar span#message').text(msg);
+        $('#' + id + ' #message_title').text(title);
+        $('#' + id + ' span#message').text(msg);
 
         clearTimeout(statusbar_timer);
-        $('#statusbar').hide();
+        $('#' + id).hide();
 
-        $('#statusbar').show('drop', {}, 600, function() {});
+        $('#' + id).show('drop', {}, 600, function() {});
         statusbar_timer = setTimeout(function() {
-            $( "#statusbar" ).hide('drop', {direction: 'right'}, 600, function() {});
+            $( '#' + id ).hide('drop', {direction: 'right'}, 600, function() {});
         }, 4000 );
+    }
+
+    function show_engine_dialog_info(msg) {
+        show_info_low('engine_dialog_statusbar', msg);
+    }
+
+    function show_engine_dialog_error(msg) {
+        show_error_low('engine_dialog_statusbar', msg);
     }
 
     /*
@@ -91,17 +112,28 @@ $(function() {
 
     $('#menubar #discard').click(function(e) {
         set_options(localStorage['options']);
+        clear_engine_dialog();
+        clear_error_messages(option_validators);
         show_info('info_discarded');
     });
 
     $('#menubar #default').click(function(e) {
         set_options(JSON.stringify(default_settings()));
+        clear_engine_dialog();
+        clear_error_messages(option_validators);
         show_info('info_loaded_defaults');
     });
 
     $('#menubar #close').click(function(e) {
         window.close();
 
+    });
+
+    $('button#add_new_engine').click(function(e) {
+        clear_engine_dialog();
+        is_engine_updating = false;
+        $('#new_engine_form').dialog('open');
+        $('#engine_dialog_statusbar').hide();
     });
 
     function set_modkey_button_status(enabling_method) {
@@ -119,7 +151,7 @@ $(function() {
     });
 
     $('#menubar #save').click(function(e) {
-        if(!validate_options()) {
+        if(!validate_options(option_validators)) {
             show_error('error_invalid_val');
         } else {
             localStorage['options'] = JSON.stringify(get_options());
@@ -153,7 +185,8 @@ $(function() {
                 },
                 button_text_color: $('#appearance #button #button_text_color').val(),
                 button_text_hcolor: $('#appearance #button #button_text_hcolor').val()
-            }
+            },
+            engines: search_engines
         };
     }
 
@@ -179,6 +212,22 @@ $(function() {
         $('#appearance #fade #distance').val(o.appearance.fade.distance);
         $('#appearance #button #button_text_color').val(o.appearance.button_text_color);
         $('#appearance #button #button_text_hcolor').val(o.appearance.button_text_hcolor);
+
+        if (!o.engines) {
+            for (var i = 0; i < builtin_engines.length; i++) {
+                if (is_engine_enabled(builtin_engines[i])) {
+                    add_builtin_engine(builtin_engines[i]);
+                }
+            }
+        } else {
+            for (var i = 0; i < o.engines.length; i++) {
+                add_new_engine(o.engines[i]);
+            }
+        }
+    }
+
+    function add_builtin_engine(name) {
+        add_new_engine({name: name, builtin: true});
     }
 
     var regex_collection = {
@@ -197,6 +246,10 @@ $(function() {
         html_color: {
             exp: /^[A-Za-z]+$|^#?[\da-f]{3}([\da-f]{3})?$/i,
             error_msg: chrome.i18n.getMessage('incorrect_html_color')
+        },
+        url: {
+            exp: /^(https?|ftp)(:\/\/[-_.!~*\'()a-zA-Z0-9;(J\(B/?:\@&=+\$,%#]+)$/,
+            error_msg: chrome.i18n.getMessage('invalid_url')
         }
     };
 
@@ -243,14 +296,16 @@ $(function() {
         },
     ];
 
-    function validate_options() {
+    function validate_options(validators) {
         var ok = true;
-        $('input').next('#error_msg').remove();
 
-        for (var i = 0; i < option_validators.length; i++) {
-            var v = option_validators[i];
+        for (var i = 0; i < validators.length; i++) {
+            var v = validators[i];
             var val = $(v.selector).val();
+            $(v.selector).next('#error_msg').remove();
             if (!val) {
+                if (v.optional)
+                    continue;
                 val = ''; // the value could be empty
             }
             var error = !val.match(v.regex.exp) ? 'invalid' : (
@@ -292,6 +347,15 @@ $(function() {
         return ok;
     };
 
+    function clear_error_messages(validators) {
+        for (var i = 0; i < validators.length; i++) {
+            var v = validators[i];
+            $(v.selector).unbind('focus');
+            $(v.selector).css({'border-color': 'black'});
+            $(v.selector).next('#error_msg').remove();
+        }
+    }
+
     function load_i18n_messages() {
         function set_localized_message(obj, attr) {
             $(obj).text(
@@ -306,12 +370,426 @@ $(function() {
         });
     }
 
-    /*
-     * Load localized messages
-     */
-    load_i18n_messages();
+    var search_engines = [];
+    var is_engine_updating = false;
+    var original_engine_name = null;
+    var builtin_engines = ['iknow', 'eow', 'wikipedia_en', 'google_translate' ];
 
-    $( "#accordion" ).accordion({
+    function is_builtin_engine(name) {
+        for (var i = 0; i < builtin_engines.length; i++) {
+            if (builtin_engines[i] == name)
+                return true;
+        }
+        return false;
+    }
+
+    function is_engine_enabled(name) {
+        if (!is_builtin_engine(name))
+            return false;
+
+        return $('#enabled_builtin_engines input[name=' + name + ']:checked').length == 1;
+    }
+
+    function disable_builtin_engine(name) {
+        $('#enabled_builtin_engines input[name=' + name + ']').attr('checked', false);
+    }
+
+    $('#enabled_builtin_engines input').change(function() {
+        var name = $(this).val();
+
+        correct_builtin_engine(name);
+    });
+
+    $('#new_engine_form input[name=custom_engine_method]').change(function() {
+        adjust_engine_dialog_content();
+    });
+
+    function adjust_engine_dialog_content() {
+        var method = $('#new_engine_form input[name=custom_engine_method]:checked').val();
+
+        if (method == 'REST') {
+            $('#new_engine_form #engine_post_params').hide();
+        } else {
+            $('#new_engine_form #engine_post_params').show();
+        }
+    }
+
+    function correct_builtin_engine(name) {
+        if (is_engine_enabled(name)) {
+            if(find_search_engine(name) == null)
+                add_builtin_engine(name);
+        } else {
+            remove_search_engine_by_name(name);
+        }
+    }
+
+    function is_valid_search_engine(obj) {
+        if (typeof obj != 'object')
+            return false;
+
+        if (typeof obj.name != 'string' || obj.name.length == 0)
+            return false;
+        if (is_builtin_engine(obj.name))
+            return true;
+
+        if (typeof obj.url != 'string' || obj.url.length == 0)
+            return false;
+        if (typeof obj.label != 'string' || obj.label.length == 0)
+            return false;
+
+        if (obj.method == 'REST') {
+            // It's okay!
+        } else if (obj.method == 'GET' || obj.method == 'POST') {
+            if (obj.params) {
+                for(var i = 0; i < obj.params.length; i++) {
+                    p = obj.params[i];
+                    if (typeof p.name != 'string' || p.length == 0)
+                        return false;
+                    if (typeof p.val != 'string' && typeof p.val != 'undefined')
+                        return false;
+                }
+            }
+            if (typeof obj.q_field != 'string' || obj.q_field.length == 0)
+                return false;
+        } else {
+            return false;
+        }
+
+        return true;
+    }
+
+    function update_engine(obj) {
+        var i = find_search_engine(original_engine_name);
+        if (i != null)
+            search_engines[i] = obj;
+    }
+
+    function add_new_engine(obj) {
+        if (!is_valid_search_engine(obj))
+            return;
+
+        search_engines.push(obj);
+
+        $('#custom_engines_list').append(
+            $('<li/>').attr({
+                id: 'custom_engine_item',
+                'class': 'ui-state-default'
+            }).css({
+                margin: '0 3px 3px 3px',
+                padding: '0.4em',
+                'padding-left': '1.5em',
+                'font-size': '1em',
+                height: '22px'
+            }).append(
+                $('<span/>').attr(
+                    'class', 'ui-icon ui-icon-arrowthick-2-n-s'
+                ).css({
+                    position: 'absolute',
+                    'margin-left': '-1.3em'            
+                })
+            ).append(
+                obj.name
+            ).append(
+                is_builtin_engine(obj.name) ? '' :
+                $('<a/>').text(
+                    chrome.i18n.getMessage('edit')
+                ).css({
+                    padding: '4px',
+                    float: 'right'
+                }).attr({
+                    'href': '#'
+                }).click(function() {
+                    edit_search_engine(
+                        get_engine_name_from_element(this)
+                    );
+                })
+            ).append(
+                $('<a/>').text(
+                    chrome.i18n.getMessage('remove')
+                ).css({
+                    padding: '4px',
+                    float: 'right'
+                }).attr(
+                    'href', '#'
+                ).click(function() {
+                    var name = get_engine_name_from_element(this);
+                    if (is_builtin_engine(name))
+                        disable_builtin_engine(name);
+                    remove_search_engine_record(name);
+                    $(this).parent('#custom_engine_item').remove();
+                    $('#custom_engines_list').sortable('refresh');
+                })
+            )
+        );
+
+        $('#custom_engines_list').sortable('refresh');
+    }
+
+    function remove_search_engine_by_name(name) {
+        $.each($('#custom_engines_list #custom_engine_item'), function() {
+            console.log(get_engine_name_from_element(this));
+            if (get_engine_name_from_element(this) == name) {
+                $(this).remove();
+                remove_search_engine_record(name);
+                $('#custom_engines_list').sortable('refresh');
+            }
+        });
+    }
+
+    function remove_search_engine_record(name) {
+        var i = find_search_engine(name);
+        if (typeof i == 'undefined' || i == null)
+            return;
+
+        search_engines.splice(i, 1);
+    }
+
+    function get_engine_name_from_element(elm) {
+        var name = null;
+        var p;
+
+        if ($(elm).attr('id') == 'custom_engine_item') {
+            p = $(elm);
+        } else {
+            p = $(elm).parent('#custom_engine_item');
+            if (!p) return null;
+        }
+            
+        var c = p.contents();
+        
+        for (var i = 0; i < c.length; i ++) {
+            if (c[i].nodeType == Node.TEXT_NODE) {
+                name = c[i].textContent;
+                break;
+            }
+        }
+
+        return name;
+    }
+
+    function clear_engine_dialog() {
+        $('#new_engine_form input:text').val('');
+        $('#new_engine_form input#engine_url').val('http://');
+
+        $('#new_engine_form input[name=custom_engine_method]').attr('checked', false);
+        $('#new_engine_form input[name=custom_engine_method][value=REST]').attr('checked', true);
+        $('#new_engine_form #engine_hiddens_list li').remove();
+        $('#new_engine_form #engine_hiddens_list').sortable('refresh');
+
+        clear_error_messages(new_engine_validators);
+        adjust_engine_dialog_content();
+    }
+
+    function find_search_engine(name) {
+        if (!name) return;
+        for (var i = 0; i < search_engines.length; i++) {
+            if(search_engines[i].name == name)
+                return i;
+        }
+        return null;
+    }
+
+    function get_search_engine_info() {
+        var obj = {
+            name: $('#new_engine_form #engine_name').val(),
+            url: $('#new_engine_form #engine_url').val(),
+            label: $('#new_engine_form #engine_label').val(),
+            method: $('#new_engine_form input[name=custom_engine_method]:checked').val()
+        };
+
+        if (obj.method != 'REST') {
+            obj.q_field = $('#new_engine_form #engine_field_name').val();
+            var params = $('#new_engine_form #hidden_param_pair'); 
+            if (params.length != 0) {
+                obj.params = [];
+                $.each(params, function() {
+                    console.log($(this).children('#hidden_param_name'));
+                    obj.params.push({
+                        name: $(this).children('#hidden_param_name').val(),
+                        val: $(this).children('#hidden_param_val').val()
+                    });
+                });
+            }
+        }
+
+        return obj;
+    }
+
+    function set_search_engine_info(obj) {
+        clear_engine_dialog();
+        $('#new_engine_form #engine_name').val(obj.name);
+        $('#new_engine_form #engine_url').val(obj.url);
+        $('#new_engine_form #engine_label').val(obj.label);
+        $('#new_engine_form input[name=custom_engine_method]').attr('checked', false);
+        $('#new_engine_form input[name=custom_engine_method][value=' + obj.method + ']').attr('checked', true);
+        $('#new_engine_form #engine_field_name').val(obj.q_field);
+        $('#new_engine_form #engine_hiddens_list li').remove();
+
+        if (obj.params) {
+            for(var i = 0; i < obj.params.length; i++) {
+                $('#new_engine_form #engine_hiddens_list').append(
+                    new_hidden_param(obj.params[i].name, obj.params[i].val)
+                );
+            }
+        }
+
+        adjust_engine_dialog_content();
+        $('#new_engine_form #engine_hiddens_list').sortable('refresh');
+    }
+
+    function edit_search_engine(name) {
+        var engine_index = find_search_engine(name);
+        if (engine_index == null) {
+            show_error(chrome.i18n.getMessage('engine_not_found') + ': ' + name);
+        }
+
+        set_search_engine_info(search_engines[engine_index]);
+        is_engine_updating = true;
+        original_engine_name = name;
+        $('#new_engine_form').dialog('open');
+        $('#engine_dialog_statusbar').hide();
+    }
+
+    var new_engine_validators = [
+        {
+            selector: '#new_engine_form #engine_name',
+            regex: regex_collection.not_empty
+        },
+        {
+            selector: '#new_engine_form #engine_url',
+            regex: regex_collection.url
+        },
+        {
+            selector: '#new_engine_form #engine_label',
+            regex: regex_collection.not_empty
+        },
+    ];
+
+    var new_engine_post_validator = [
+        {
+            selector: '#new_engine_form #engine_field_name',
+            regex: regex_collection.not_empty
+        },
+        {
+            selector: '#new_engine_form #hidden_param_name',
+            regex: regex_collection.not_empty,
+            optional: true
+        },
+    ];
+
+    function validate_search_engine_dialog() {
+        if (!validate_options(new_engine_validators))
+            return false;
+
+        var method = $('#new_engine_form input[name=custom_engine_method]:checked').val();
+
+        if (method != 'REST') {
+            if (!validate_options(new_engine_post_validator))
+                return false;
+        }
+
+        return true;
+    }
+
+    $('#new_engine_form').dialog({
+        autoOpen: false,
+        width: '600',
+        height: 'auto',
+        modal: true,
+        title: chrome.i18n.getMessage('engine_dialog_title'),
+        buttons: {
+            OK: function() {
+                if(!validate_search_engine_dialog(new_engine_validators)) {
+                    show_engine_dialog_error('error_invalid_val');
+                    return false;
+                }
+                console.log('valid');
+                console.log(get_search_engine_info());
+                var engine_info = get_search_engine_info();
+                if(is_engine_updating) {
+                    update_engine(engine_info);
+                } else {
+                    add_new_engine(engine_info);
+                }
+                $(this).dialog('close');
+            },
+            Calcel: function() {
+                $(this).dialog('close');
+            }
+        },
+        close: function() {
+        }
+    });
+
+    function new_hidden_param(name, val) {
+        var input_style = {
+            'float': 'left',
+            'font-size': '14px',
+            padding: 0,
+            'margin-left': '10px',
+            'font-color': 'black',
+            height: '20px'
+        };
+
+        return $('<li>').attr({
+            id: 'hidden_param_pair',
+            'class': 'ui-state-default'
+        }).css({
+            padding: '0.2em',
+            'padding-left': '1.5em',
+            'font-size': '1em',
+            height: '24px'
+        }).append(
+            $('<span/>').attr(
+                'class', 'ui-icon ui-icon-arrowthick-2-n-s'
+            ).css({
+                position: 'absolute',
+                'margin-left': '-1.3em',
+                'margin-top': '0.1em'
+            })
+        ).append(
+            $('<input>').attr({
+                id: 'hidden_param_name',
+                type: 'text',
+                value: name || ''
+            }).css(input_style)
+        ).append(
+            $('<input>').attr({
+                id: 'hidden_param_val',
+                type: 'text',
+                value: val || ''
+            }).css(input_style)
+        ).append(
+            $('<a/>').text(
+                chrome.i18n.getMessage('remove')
+            ).css({
+                padding: '4px',
+                float: 'right'
+            }).attr(
+                'href', '#'
+            ).click(function() {
+                $(this).parent('#hidden_param_pair').remove();
+                $('#new_engine_form #engine_hiddens_list').sortable('refresh');
+            })
+        )
+    }
+
+    $('#new_engine_form #engine_hiddens_list').sortable().css({
+        'list-style-type': 'none'
+    });
+
+    $('#new_engine_form #add_new_hidden_param').button().css({
+        'font-size': '14px',
+        width: '140px'
+    }).click(function() {
+        $('#new_engine_form #engine_hiddens_list').append(
+            new_hidden_param()
+        );
+        $('#new_engine_form #engine_hiddens_list').sortable('refresh');
+        $('#new_engine_form #engine_hiddens_list :text').removeAttr('disabled');
+    });
+
+    $("#accordion").accordion({
         autoHeight: false,
         navigation: true
     });
@@ -331,6 +809,16 @@ $(function() {
     $('#config_area').width(width);
 
     $('#menubar button').button().css({'font-size': '14px', width: '140px'});
+    $('#accordion button').button().css({'font-size': '14px', width: '140px'});
+
+    $('#custom_engines_list').sortable();
+    $('#custom_engines_list').disableSelection();
+    $('#custom_engines_list').css({
+        'list-style-type': 'none',
+        margin: 0,
+        padding: 0,
+        width: '60%'
+    });
 
     $('#copyright').dialog({
         autoOpen: false,

@@ -95,6 +95,13 @@
 <input type="checkbox" name="google_translate" value="google_translate">Google Translate</input><br/>
 </fieldset>
 
+<fieldset id="custom_engines">
+  <legend msg="custom_engine_title">Custom engines and engines order</legend>
+  <ul id="custom_engines_list">
+  </ul>
+  <button id="add_new_engine" msg="add_new">Add new</button><br/>
+</fieldset>
+
   </div>
   <h3><a href="#">Remember!</a></h3>
   <div>
@@ -115,6 +122,47 @@ This program is licensed under GPLv3 or later.<br/><br/>
 Download the source code from <a href="https://github.com/Mikiya/Chrome-highlight-E-J-dictionary" target="_blank">GitHub</a>.<br/>
 Author's blog: <a href="http://nippondanji.blogspot.com/" target="_blank">漢のコンピュータ道</a>
 </div>
+</div>
+
+<div id="new_engine_form" style="font-size:14px; padding: 20px">
+<div style="height: 32px">
+  <div class="ui-widget" id="engine_dialog_statusbar" style="width: 400px; height:32px; margin-left : auto; margin-right : auto; padding 8px;">
+    <div class="ui-state-highlight ui-corner-all" style="padding: 0; font-size: 14px;"> 
+      <p style="margin: 6px">
+        <span id="statusicon" class="ui-icon ui-icon-info" style="float: left; margin-right: 0.5em; margin-left: 0.5em" id="icon"></span>
+        <strong id="message_title"></strong>&nbsp;<span id="message" style="margin-left : auto; margin-right : auto;"></span>
+      </p>
+    </div>
+  </div>
+</div>
+
+<label for="engine_name">Name</label>
+<input id="engine_name"/><br/>
+<label for="engine_url">URL</label>
+<input id="engine_url" value="http://"/><br/>
+<label for="engine_label">Label</label>
+<input id="engine_label"/>
+<fieldset id="engine_method">
+  <legend msg="engine_method">Method</legend>
+  <input type="radio" name="custom_engine_method" value="REST" checked>REST</input>
+  <input type="radio" name="custom_engine_method" value="GET">GET</input>
+  <input type="radio" name="custom_engine_method" value="POST">POST</input>
+</fieldset>
+<fieldset id="engine_post_params">
+  <legend msg="engine_post_params">POST/GET specific parameters</legend>
+  <label for="engine_field_name">Field name</label>
+  <input id="engine_field_name"/>
+  <fieldset id="engine_hiddens">
+    <legend msg="engine_hiddens">Hidden Parameters</legend>
+    <ul id="engine_hiddens_list">
+    </ul>
+    <button id="add_new_hidden_param" msg="add_new">Add new</button>
+  </fieldset>
+</fieldset>
+</div>
+
+<div id="yes_no_dialog">
+<span id="yes_no_msg" />
 </div>
 
 </body>

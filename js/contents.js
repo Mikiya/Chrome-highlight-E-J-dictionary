@@ -17,6 +17,11 @@
  * along with this program.    If not, see <http://www.gnu.org/licenses/>.
  */
 
+(function($) {
+    $.escapeHTML = function(val) {
+        return $("<div/>").text(val).html();
+    };
+})(jQuery);
 
 (function () {
     /* Configuration variables */
@@ -99,13 +104,13 @@
                 }
             }
             if (this.q_field) {
-                create_hidden(this.q_field, encodeURI(w), form);
+                create_hidden(this.q_field, w, form);
             } else {
                 url = url + encodeURI(w);
             }
             form.attr('action', url);
 
-            $('#' + my_id + ' input[uuid=' + this.uuid + ']').attr('value', this.label);
+            $('#' + my_id + ' input[uuid=' + this.uuid + ']').attr('value', '>> ' + this.label);
             if (debug) console.log('Submit button text: ' + this.label);
         };
 
@@ -261,36 +266,73 @@
         }
     };
 
-    function setup_modules(enabled) {
-        if (enabled.iknow) {
-            the_modules.push($.extend(new SimpleSearchModule(), {
-                name: 'iKnow dictonary search',
-                url: 'http://smart.fm/jisho/',
-                label: '>> iKnowで検索'
-            }));
-        };
-        
-        if (enabled.eow) {
-            the_modules.push($.extend(new SimpleSearchModule(), {
-                name: 'ALC',
-                url: 'http://eow.alc.co.jp/',
-                label: '>> 英二郎 on the WEBで検索'
-            }));
+    var builtin_search_engines = {
+        iknow: {
+            name: 'iKnow dictonary search',
+            url: 'http://smart.fm/jisho/',
+            label: 'iKnowで検索'
+        },
+        eow: {
+            name: 'ALC',
+            url: 'http://eow.alc.co.jp/',
+            label: '英二郎 on the WEBで検索'
+        },
+        wikipedia_en: {
+            name: 'Wikipedia(en)',
+            url: 'http://en.wikipedia.org/w/index.php',
+            hiddens: {title: 'Special:Search'},
+            method: 'POST',
+            q_field: 'search',
+            label: 'Wikipedia英語版で検索'
         }
-        
-        if (enabled.wikipedia_en) {
-            the_modules.push($.extend(new SimpleSearchModule(), {
-                name: 'Wikipedia(en)',
-                url: 'http://en.wikipedia.org/w/index.php',
-                hiddens: {title: 'Special:Search'},
-                method: 'POST',
-                q_field: 'search',
-                label: '>> Wikipedia英語版で検索'
-            }));
-        }
-        
-        if (enabled.google_translate)
+    };
+
+    function add_builtin_module(name) {
+        console.log(name);
+        if (name == 'google_translate') {
             the_modules.push(google_translate_module);
+        } else {
+            the_modules.push(
+                $.extend(
+                    true,
+                    new SimpleSearchModule(),
+                    builtin_search_engines[name]
+                )
+            );
+            console.log(builtin_search_engines[name]);
+        }
+    }
+
+    function setup_modules(o) {
+        if (!o.engines) {
+            // Backward compatibility
+            var enabled = o.enabled_builtin_engines;
+            if (enabled.iknow) {
+                add_builtin_module('iknow');
+            };
+            
+            if (enabled.eow) {
+                add_builtin_module('eow');
+            }
+            
+            if (enabled.wikipedia_en) {
+                add_builtin_module('wikipedia_en');
+            }
+            
+            if (enabled.google_translate)
+                the_modules.push(google_translate_module);
+
+        } else {
+            // Custom engines and ordering
+            for (var i = 0; i < o.engines.length; i++) {
+                var e = o.engines[i];
+                if (e.builtin) {
+                    add_builtin_module(e.name);
+                } else {
+                    the_modules.push($.extend(true, new SimpleSearchModule(), e));
+                }
+            }
+        }
 
         /* Generate UUIDs for modules */
         for (var i = 0; i < the_modules.length; i++) {
@@ -299,7 +341,7 @@
     }
     
     /* The global variables */
-    var debug = false;
+    var debug = true;
     var tooltip_status = 'hidden';
     var words = '';
     var words_displayed = '';
@@ -631,7 +673,7 @@
         if (debug)
             console.log(json);
 
-        setup_modules(o.enabled_builtin_engines);
+        setup_modules(o);
         $.extend(true, appearance, o.appearance);
         setup_event_listener(o.enabling_method);
     });

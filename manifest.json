@@ -9,7 +9,7 @@
           "css": ["css/default.css"]
       }
   ],
-  "permissions": [ "http://*/*", "https://*/*", "tabs", "unlimitedStorage" ],
+  "permissions": [ "http://*/*", "https://*/*", "tabs", "unlimitedStorage", "contextMenus" ],
   "background_page": "background.html",
   "options_page": "options.html",
   "default_locale": "en"
