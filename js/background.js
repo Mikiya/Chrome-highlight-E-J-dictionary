@@ -70,8 +70,8 @@ function do_search_by_context_menu(info, tab) {
     }
 }
 
-function update_context_menu() {
-    var builtin_search_engines = {
+function get_builtin_engines() {
+    return {
         iknow: {
             name: 'iknow',
             url: 'http://smart.fm/jisho/',
@@ -101,29 +101,101 @@ function update_context_menu() {
             language_detect_api_url: 'https://ajax.googleapis.com/ajax/services/language/detect'
         }
     };
+}
+
+function update_context_menu() {
+    var builtin_search_engines = get_builtin_engines();
+
+    function add_search_engine_menu(e) {
+        if (!e.context_menu) return;
+        if (builtin_search_engines[e.name])
+            e = builtin_search_engines[e.name];
+        
+        var menu_id = chrome.contextMenus.create({
+            title: enclose_label(e.label),
+            contexts: ['selection'],
+            onclick: do_search_by_context_menu
+        });
+        context_menues.push({
+            id: menu_id,
+            engine: e
+        });
+    }
 
     chrome.contextMenus.removeAll();
     context_menues = [];
 
-    var o = JSON.parse(localStorage['options']);
-    if (o.engines) {
-        for (var i = 0; i < o.engines.length; i++) {
-            var e = o.engines[i];
-            if (!e.context_menu) continue;
-            if (builtin_search_engines[e.name])
-                e = builtin_search_engines[e.name];
+    var json = localStorage['options'];
+    var o = json ? JSON.parse(json) : null;
 
-            var menu_id = chrome.contextMenus.create({
-                title: chrome.i18n.getMessage('ctx_prefix') + e.label + chrome.i18n.getMessage('ctx_suffix'),
-                contexts: ['selection'],
-                onclick: do_search_by_context_menu
-            });
-            context_menues.push({
-                id: menu_id,
-                engine: e
-            });
+    if (o && o.engines) {
+        for (var i = 0; i < o.engines.length; i++) {
+            add_search_engine_menu(o.engines[i]);
+        }
+    } else {
+        for (var i in builtin_search_engines) {
+            builtin_search_engines[i].context_menu = true;
+            add_search_engine_menu(builtin_search_engines[i]);
         }
     }
 }
 
 update_context_menu();
+
+function get_default_settings() {
+    return {
+        enabling_method: {
+            method: 'select',
+            modkey: 'shift'
+        },
+        enabled_builtin_engines: {
+            iknow: true,
+            eow: true,
+            wikipedia_en: true,
+            google_translate: true
+        },
+        appearance: {
+            max_width: 320,
+            opacity: 0.9,
+            background: {
+                gradiation_top: 'slategray',
+                gradiation_bottom: 'black'
+            },
+            dummy: 123,
+            fade: {
+                duration: 200,
+                delay: 200,
+                distance: 40
+            },
+            button_text_color: 'white',
+            button_text_hcolor: 'red'
+        }
+    };
+}
+
+function enclose_label(label) {
+    return chrome.i18n.getMessage('ctx_prefix') + label + chrome.i18n.getMessage('ctx_suffix');
+}
+
+function onRequest(request, sender, callback) {
+    if (request.action == 'getJSON') {
+        $.getJSON(request.url, request.data, callback);
+    } else if (request.action == 'getStorage') {
+        if (request.kind == 'local')
+            callback(localStorage[request.key]);
+        else
+            callback(sessionStorage[request.key]);
+    } else if (request.action == 'updateContextMenu') {
+        update_context_menu();
+    } else if (request.action == 'getDefaultOptions') {
+        callback(JSON.stringify(get_default_settings()));
+    } else if (request.action == 'getBuiltinEngines') {
+        var engines = get_builtin_engines();
+        for (var e in engines) {
+            engines[e].label = enclose_label(engines[e].label);
+        }
+        callback(JSON.stringify(engines));
+    }
+}
+
+chrome.extension.onRequest.addListener(onRequest);

@@ -18,6 +18,7 @@
  */
 
 $(function() {
+    var debug = false;
     /*
      * Load localized messages
      */
@@ -73,42 +74,26 @@ $(function() {
     }
 
     /*
+     * Default setting.
+     */
+    var _default_settings = {};
+    function default_settings() {
+        return $.extend(true, {}, _default_settings);
+    }
+
+    chrome.extension.sendRequest({action: 'getDefaultOptions'}, function(json) {
+        if(json)
+            _default_settings = JSON.parse(json);
+        console.log(json);
+        set_options(localStorage['options']);
+    });
+
+    /*
      * Buttons!
      */
     $('#menubar #about').click(function(e) {
         $('#copyright').dialog('open');
     });
-
-    function default_settings() {
-        return {
-            enabling_method: {
-                method: 'select',
-                modkey: 'shift'
-            },
-            enabled_builtin_engines: {
-                iknow: true,
-                eow: true,
-                wikipedia_en: true,
-                google_translate: true
-            },
-            appearance: {
-                max_width: 320,
-                opacity: 0.9,
-                background: {
-                    gradiation_top: 'slategray',
-                    gradiation_bottom: 'black'
-                },
-                dummy: 123,
-                fade: {
-                    duration: 200,
-                    delay: 200,
-                    distance: 40
-                },
-                button_text_color: 'white',
-                button_text_hcolor: 'red'
-            }
-        };
-    }
 
     $('#menubar #discard').click(function(e) {
         set_options(localStorage['options']);
@@ -155,6 +140,7 @@ $(function() {
             show_error('error_invalid_val');
         } else {
             localStorage['options'] = JSON.stringify(get_options());
+            chrome.extension.sendRequest({action: 'updateContextMenu'});
             show_info('info_settings_saved');
         }
     });
@@ -192,7 +178,8 @@ $(function() {
 
     function set_options(json) {
         var o = default_settings();
-        $.extend(true, o, JSON.parse(json));
+        if (json)
+            $.extend(true, o, JSON.parse(json));
 
         $('#enabling_method input[name=popup_enable_method][value=' + o.enabling_method.method + ']').attr('checked', 'checked');
         $('#enabling_method input[name=popup_enable_modifier_key][value=' + o.enabling_method.modkey + ']').attr('checked', 'checked');
@@ -250,7 +237,7 @@ $(function() {
     }
 
     function add_builtin_engine(name) {
-        add_new_engine({name: name, label: get_builtin_engine_label(name), builtin: true});
+        add_new_engine({name: name, label: get_builtin_engine_label(name), builtin: true, context_menu: true});
     }
 
     var regex_collection = {
@@ -917,5 +904,5 @@ $(function() {
         buttons: { "OK": function() { $(this).dialog("close"); } }
     });
 
-    set_options(localStorage['options']);
+    console.log(_default_settings);
 });

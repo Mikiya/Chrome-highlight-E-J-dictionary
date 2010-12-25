@@ -1,22 +1,9 @@
+<!DOCTYPE html>
 <html>
 <head>
 <script src="js/jquery.js"></script>
 <script src="js/json2.js"></script>
 <script src="js/background.js"></script>
-<script>
-function onRequest(request, sender, callback) {
-    if (request.action == 'getJSON') {
-        $.getJSON(request.url, request.data, callback);
-    } else if (request.action == 'getStorage') {
-        if (request.kind == 'local')
-            callback(localStorage[request.key]);
-        else
-            callback(sessionStorage[request.key]);
-    }
-}
-
-chrome.extension.onRequest.addListener(onRequest);
-</script>
 </head>
 <body>
 </body>

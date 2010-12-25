@@ -293,6 +293,12 @@
         }
     };
 
+    chrome.extension.sendRequest({action: 'getBuiltinEngines'}, function(json) {
+        if (json)
+            builtin_search_engines = JSON.parse(json);
+        console.log(json);
+    });
+
     function add_builtin_module(name) {
         if (name == 'google_translate') {
             the_modules.push(google_translate_module);
@@ -673,14 +679,26 @@
     };
 
     /* Enable this extension within pages */
+    function setup_the_extension(o) {
+        setup_modules(o);
+        $.extend(true, appearance, o.appearance);
+        setup_event_listener(o.enabling_method);
+    }
+
     chrome_localStorage('options', function(json) {
         var o = JSON.parse(json);
         if (debug)
             console.log(json);
 
-        setup_modules(o);
-        $.extend(true, appearance, o.appearance);
-        setup_event_listener(o.enabling_method);
+        if (!json) {
+            chrome.extension.sendRequest({action: 'getDefaultOptions'}, function(json) {
+                o = JSON.parse(json);
+                setup_the_extension(o);
+            });
+            return;
+        }
+
+        setup_the_extension(o);
     });
 
     function setup_event_listener(o) {
