@@ -186,7 +186,7 @@ $(function() {
                 button_text_color: $('#appearance #button #button_text_color').val(),
                 button_text_hcolor: $('#appearance #button #button_text_hcolor').val()
             },
-            engines: search_engines
+            engines: sort_search_engines()
         };
     }
 
@@ -213,10 +213,11 @@ $(function() {
         $('#appearance #button #button_text_color').val(o.appearance.button_text_color);
         $('#appearance #button #button_text_hcolor').val(o.appearance.button_text_hcolor);
 
+        clear_engines();
         if (!o.engines) {
             for (var i = 0; i < builtin_engines.length; i++) {
-                if (is_engine_enabled(builtin_engines[i])) {
-                    add_builtin_engine(builtin_engines[i]);
+                if (is_engine_enabled(builtin_engines[i].name)) {
+                    add_builtin_engine(builtin_engines[i].name);
                 }
             }
         } else {
@@ -226,8 +227,30 @@ $(function() {
         }
     }
 
+    function sort_search_engines() {
+        var order = $('#custom_engines_list').sortable('toArray');
+        var sorted_engines = [];
+
+        for (var i = 0; i < order.length; i++) {
+            order[i] = order[i].replace('custom_engine_item_', '');
+            var engine_index = find_search_engine(order[i]);
+            sorted_engines.push(search_engines[engine_index]);
+        }
+
+        return sorted_engines;
+    }
+
+    function get_builtin_engine_label(name) {
+        for (var i = 0; i < builtin_engines.length; i++) {
+            if (builtin_engines[i].name == name) {
+                return builtin_engines[i].label;
+            }
+        }
+        return null;
+    }
+
     function add_builtin_engine(name) {
-        add_new_engine({name: name, builtin: true});
+        add_new_engine({name: name, label: get_builtin_engine_label(name), builtin: true});
     }
 
     var regex_collection = {
@@ -242,6 +265,10 @@ $(function() {
         digits_only: {
             exp: /^\d+$/,
             error_msg: chrome.i18n.getMessage('only_digits')
+        },
+        alpha_num_underline: {
+            exp: /^\w+$/,
+            error_msg: chrome.i18n.getMessage('alpha_num_underline')
         },
         html_color: {
             exp: /^[A-Za-z]+$|^#?[\da-f]{3}([\da-f]{3})?$/i,
@@ -318,34 +345,37 @@ $(function() {
             )
             if (error) {
                 ok = false;
-                $(v.selector).after(
-                    $('<span>').attr({
-                        id: 'error_msg'
-                    }).css({
-                        color: 'red',
-                        'margin-left': '8px',
-                        'margin-right': '24px'
-                    }).text(
-                        error == 'invalid' ? v.regex.error_msg : (
-                            'Out of range: '
-                                + (v.range.min || '')
-                                + ' ~ '
-                                + (v.range.max || '')
-                        )
-                    )
-                ).css({
-                    'border-color': 'red'
-                }).focus(function() {
-                    $(this).unbind('focus');
-                    $(this).css({'border-color': 'black'});
-                    $(this).next('#error_msg').remove();
-                });
-
+                mark_as_error(v.selector, error, v.regex.error_msg, v.range);
             }
         }
 
         return ok;
-    };
+    }
+
+    function mark_as_error(selector, err_type, err_msg, range) {
+        $(selector).after(
+            $('<span>').attr({
+                id: 'error_msg'
+            }).css({
+                color: 'red',
+                'margin-left': '8px',
+                'margin-right': '24px'
+            }).text(
+                err_type == 'invalid' ? err_msg : (
+                    chrome.i18n.getMessage('out_of_range') + ': '
+                        + (range.min || '')
+                        + ' ~ '
+                        + (range.max || '')
+                )
+            )
+        ).css({
+            'border-color': 'red'
+        }).focus(function() {
+            $(this).unbind('focus');
+            $(this).css({'border-color': 'black'});
+            $(this).next('#error_msg').remove();
+        });
+    }
 
     function clear_error_messages(validators) {
         for (var i = 0; i < validators.length; i++) {
@@ -373,11 +403,16 @@ $(function() {
     var search_engines = [];
     var is_engine_updating = false;
     var original_engine_name = null;
-    var builtin_engines = ['iknow', 'eow', 'wikipedia_en', 'google_translate' ];
+    var builtin_engines = [
+        {name: 'iknow', label: 'iKnow'},
+        {name: 'eow', label: '英二郎 on the Web'},
+        {name: 'wikipedia_en', label: 'Wikipedia(en)'},
+        {name: 'google_translate', label: 'Google translate'},
+    ]
 
     function is_builtin_engine(name) {
         for (var i = 0; i < builtin_engines.length; i++) {
-            if (builtin_engines[i] == name)
+            if (builtin_engines[i].name == name)
                 return true;
         }
         return false;
@@ -472,7 +507,9 @@ $(function() {
 
         $('#custom_engines_list').append(
             $('<li/>').attr({
-                id: 'custom_engine_item',
+                id: 'custom_engine_item_' + obj.name,
+                tag: 'custom_engine_item',
+                name: obj.name,
                 'class': 'ui-state-default'
             }).css({
                 margin: '0 3px 3px 3px',
@@ -488,7 +525,11 @@ $(function() {
                     'margin-left': '-1.3em'            
                 })
             ).append(
-                obj.name
+                $('<span/>').attr({
+                    id: 'engine_label_in_list'
+                }).text(
+                    obj.label || (is_builtin_engine(obj.name) ? get_builtin_engine_label(obj.name) : '')
+                )
             ).append(
                 is_builtin_engine(obj.name) ? '' :
                 $('<a/>').text(
@@ -515,9 +556,7 @@ $(function() {
                     var name = get_engine_name_from_element(this);
                     if (is_builtin_engine(name))
                         disable_builtin_engine(name);
-                    remove_search_engine_record(name);
-                    $(this).parent('#custom_engine_item').remove();
-                    $('#custom_engines_list').sortable('refresh');
+                    remove_search_engine_by_name(name);
                 })
             )
         );
@@ -526,14 +565,9 @@ $(function() {
     }
 
     function remove_search_engine_by_name(name) {
-        $.each($('#custom_engines_list #custom_engine_item'), function() {
-            console.log(get_engine_name_from_element(this));
-            if (get_engine_name_from_element(this) == name) {
-                $(this).remove();
-                remove_search_engine_record(name);
-                $('#custom_engines_list').sortable('refresh');
-            }
-        });
+        $('#custom_engines_list [tag=custom_engine_item][name=' + name + ']').remove();
+        $('#custom_engines_list').sortable('refresh');
+        remove_search_engine_record(name);
     }
 
     function remove_search_engine_record(name) {
@@ -545,26 +579,16 @@ $(function() {
     }
 
     function get_engine_name_from_element(elm) {
-        var name = null;
         var p;
 
-        if ($(elm).attr('id') == 'custom_engine_item') {
+        if ($(elm).attr('tag') == 'custom_engine_item') {
             p = $(elm);
         } else {
-            p = $(elm).parent('#custom_engine_item');
+            p = $(elm).parent('[tag=custom_engine_item]');
             if (!p) return null;
         }
             
-        var c = p.contents();
-        
-        for (var i = 0; i < c.length; i ++) {
-            if (c[i].nodeType == Node.TEXT_NODE) {
-                name = c[i].textContent;
-                break;
-            }
-        }
-
-        return name;
+        return p.attr('name');
     }
 
     function clear_engine_dialog() {
@@ -580,12 +604,19 @@ $(function() {
         adjust_engine_dialog_content();
     }
 
+    function clear_engines() {
+        $('#custom_engines_list').children('li').remove();
+        search_engines = [];
+    }
+
     function find_search_engine(name) {
         if (!name) return;
         for (var i = 0; i < search_engines.length; i++) {
             if(search_engines[i].name == name)
                 return i;
         }
+        if (debug)
+            console.log('Engine not found:' + name);
         return null;
     }
 
@@ -654,7 +685,7 @@ $(function() {
     var new_engine_validators = [
         {
             selector: '#new_engine_form #engine_name',
-            regex: regex_collection.not_empty
+            regex: regex_collection.alpha_num_underline
         },
         {
             selector: '#new_engine_form #engine_url',
@@ -679,17 +710,46 @@ $(function() {
     ];
 
     function validate_search_engine_dialog() {
+        var ok = true;
+
         if (!validate_options(new_engine_validators))
-            return false;
+            ok = false;
 
         var method = $('#new_engine_form input[name=custom_engine_method]:checked').val();
 
         if (method != 'REST') {
             if (!validate_options(new_engine_post_validator))
-                return false;
+                ok = false;
         }
 
-        return true;
+        function mark_as_engine_error(msg) {
+            mark_as_error(
+                '#new_engine_form input#engine_name',
+                'invalid',
+                msg,
+                null
+            );
+            ok = false;
+        }
+
+        // Check for duplicate name
+        var name = $('#new_engine_form input#engine_name').val();
+        if (is_builtin_engine(name)) {
+            mark_as_engine_error(chrome.i18n.getMessage('duplicate_custom_engine_entry'));
+        } else if (!is_engine_updating) {
+            if (find_search_engine(name) != null) {
+                mark_as_engine_error(chrome.i18n.getMessage('duplicate_custom_engine_entry'));
+            }
+        } else {
+            var original_index = find_search_engine(original_engine_name);
+            for (var i = 0; i < search_engines.length; i++) {
+                if (search_engines[i].name == name && i != original_index) {
+                    mark_as_engine_error(chrome.i18n.getMessage('duplicate_custom_engine_entry'));
+                }
+            }
+        }
+
+        return ok;
     }
 
     $('#new_engine_form').dialog({
@@ -704,8 +764,6 @@ $(function() {
                     show_engine_dialog_error('error_invalid_val');
                     return false;
                 }
-                console.log('valid');
-                console.log(get_search_engine_info());
                 var engine_info = get_search_engine_info();
                 if(is_engine_updating) {
                     update_engine(engine_info);

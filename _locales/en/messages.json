@@ -46,6 +46,9 @@
   "must_not_be_empty": {
       "message": "Must not be empty."
   },
+  "alpha_num_underline": {
+      "message": "You can use alphabets, digits and underscores here."
+  },
   "zero_to_one": {
       "message": "Specify 0 ~ 1 in float."
   },
@@ -168,5 +171,11 @@
   },
   "engine_not_found": {
     "message": "No such search engine found"
+  },
+  "out_of_range": {
+    "message": "Out of range"
+  },
+  "duplicate_custom_engine_entry": {
+    "message": "Duplicate search engine entry not allowed."
   }
 }

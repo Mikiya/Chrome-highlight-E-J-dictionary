@@ -35,6 +35,9 @@
   "must_not_be_empty": {
       "message": "空欄ではいけません。"
   },
+  "alpha_num_underline": {
+      "message": "アルファベット、数字、アンダースコアだけが使用可能です。"
+  },
   "zero_to_one": {
       "message": "0〜1の範囲で小数を指定してください。"
   },
@@ -157,5 +160,11 @@
   },
   "engine_not_found": {
     "message": "検索エンジンが見つかりません"
+  },
+  "out_of_range": {
+    "message": "範囲外です"
+  },
+  "duplicate_custom_engine_entry": {
+    "message": "検索エンジン名が重複しています。"
   }
 }
