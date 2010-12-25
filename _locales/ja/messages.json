@@ -137,6 +137,12 @@
   "add_new_hidden_param": {
     "message": "パラメータ追加"
   },
+  "param_name": {
+    "message": "パラメータ名"
+  },
+  "param_val": {
+    "message": "値"
+  },
   "engine_dialog_title": {
     "message": "新しい検索エンジンを追加"
   },

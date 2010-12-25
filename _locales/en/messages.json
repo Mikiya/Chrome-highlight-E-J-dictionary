@@ -148,6 +148,12 @@
   "add_new_hidden_param": {
       "message": "Add"
   },
+  "param_name": {
+    "message": "name"
+  },
+  "param_val": {
+    "message": "val"
+  },
   "engine_dialog_title": {
     "message": "Add new search engine"
   },

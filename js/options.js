@@ -694,7 +694,7 @@ $(function() {
 
     $('#new_engine_form').dialog({
         autoOpen: false,
-        width: '600',
+        width: '700',
         height: 'auto',
         modal: true,
         title: chrome.i18n.getMessage('engine_dialog_title'),
@@ -749,11 +749,19 @@ $(function() {
                 'margin-top': '0.1em'
             })
         ).append(
+            $('<label>').attr({
+                'for': 'hidden_param_name',
+            }).text(chrome.i18n.getMessage('param_name')).css(input_style)
+        ).append(
             $('<input>').attr({
                 id: 'hidden_param_name',
                 type: 'text',
                 value: name || ''
             }).css(input_style)
+        ).append(
+            $('<label>').attr({
+                'for': 'hidden_param_val'                
+            }).text(chrome.i18n.getMessage('param_val')).css(input_style)
         ).append(
             $('<input>').attr({
                 id: 'hidden_param_val',
