@@ -177,5 +177,23 @@
   },
   "duplicate_custom_engine_entry": {
     "message": "Duplicate search engine entry not allowed."
+  },
+  "display_in_context_nemu": {
+    "message": "display in menu"
+  },
+  "ctx_prefix": {
+    "message": "Search on"
+  },
+  "ctx_suffix": {
+    "message": ""
+  },
+  "ctx_engine_eow": {
+    "message": "Eijiro on the WEB"
+  },
+  "ctx_engine_wikipedia_en": {
+    "message": "Wikipedia(en)"
+  },
+  "ctx_engine_google_translate": {
+    "message": "Google translate"
   }
 }

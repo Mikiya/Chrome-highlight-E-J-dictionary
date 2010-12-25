@@ -1,6 +1,6 @@
 {
   "name": "Highlight J-E Dictionary",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Search dictionary by selecting (highlighting) the text.",
   "content_scripts": [
       {

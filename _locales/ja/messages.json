@@ -166,5 +166,23 @@
   },
   "duplicate_custom_engine_entry": {
     "message": "検索エンジン名が重複しています。"
+  },
+  "display_in_context_nemu": {
+    "message": "メニューに表示"
+  },
+  "ctx_prefix": {
+    "message": ""
+  },
+  "ctx_suffix": {
+    "message": "で検索"
+  },
+  "ctx_engine_eow": {
+    "message": "英二郎 on the WEB"
+  },
+  "ctx_engine_wikipedia_en": {
+    "message": "Wikipedia英語版"
+  },
+  "ctx_engine_google_translate": {
+    "message": "Google翻訳"
   }
 }

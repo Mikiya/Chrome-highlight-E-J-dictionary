@@ -531,18 +531,27 @@ $(function() {
                     obj.label || (is_builtin_engine(obj.name) ? get_builtin_engine_label(obj.name) : '')
                 )
             ).append(
-                is_builtin_engine(obj.name) ? '' :
-                $('<a/>').text(
-                    chrome.i18n.getMessage('edit')
+                $('<span/>').append(
+                    $('<input/>').attr({
+                        id: 'display_in_context_nemu',
+                        type: 'checkbox',
+                        checked: obj.context_menu || false
+                    }).change(function() {
+                        var name = get_engine_name_from_element(this);
+                        var index = find_search_engine(name);
+                        search_engines[index].context_menu = $(this).attr('checked');
+                    })
+                ).append(
+                    $('<span/>').text(
+                        chrome.i18n.getMessage('display_in_context_nemu')
+                    )
                 ).css({
-                    padding: '4px',
-                    float: 'right'
-                }).attr({
-                    'href': '#'
-                }).click(function() {
-                    edit_search_engine(
-                        get_engine_name_from_element(this)
-                    );
+                    'margin-left': '10px',
+                    'margin-right': '10px',
+                    padding: '1px',
+                    float: 'right',
+                    border: '1px white solid',
+                    'font-size': 'small'
                 })
             ).append(
                 $('<a/>').text(
@@ -557,6 +566,20 @@ $(function() {
                     if (is_builtin_engine(name))
                         disable_builtin_engine(name);
                     remove_search_engine_by_name(name);
+                })
+            ).append(
+                is_builtin_engine(obj.name) ? '' :
+                $('<a/>').text(
+                    chrome.i18n.getMessage('edit')
+                ).css({
+                    padding: '4px',
+                    float: 'right'
+                }).attr({
+                    'href': '#'
+                }).click(function() {
+                    edit_search_engine(
+                        get_engine_name_from_element(this)
+                    );
                 })
             )
         );
@@ -584,10 +607,9 @@ $(function() {
         if ($(elm).attr('tag') == 'custom_engine_item') {
             p = $(elm);
         } else {
-            p = $(elm).parent('[tag=custom_engine_item]');
+            p = $(elm).parents('[tag=custom_engine_item]');
             if (!p) return null;
         }
-            
         return p.attr('name');
     }
 

@@ -294,7 +294,6 @@
     };
 
     function add_builtin_module(name) {
-        console.log(name);
         if (name == 'google_translate') {
             the_modules.push(google_translate_module);
         } else {
