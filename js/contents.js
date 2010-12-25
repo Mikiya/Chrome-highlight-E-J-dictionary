@@ -80,7 +80,10 @@
             var the_form = create_empty_form();
             if (this.method)
                 the_form.attr({method: this.method});
-            the_form.attr('uuid', this.uuid);
+            the_form.attr({
+                'accept-charset': this.charset || 'UTF-8',
+                'uuid': this.uuid
+            });
             the_form.appendTo(list_item);
 
             var input = $('<input />');
@@ -147,7 +150,10 @@
             title_area_frame.appendTo(list_item);
 
             var title_area_form = create_empty_form();
-            title_area_form.attr('uuid', this.uuid);
+            title_area_form.attr({
+                'accept-charset': 'UTF-8',
+                'uuid': this.uuid
+            });
             title_area_form.css('display', 'none');
             title_area_form.appendTo(title_area_frame);
 

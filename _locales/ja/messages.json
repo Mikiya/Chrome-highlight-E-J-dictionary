@@ -116,6 +116,12 @@
   "engine_label": {
       "message": "検索窓に表示するラベル"
   },
+  "engine_charset": {
+      "message": "サーバーに送信する文字コード"
+  },
+  "not_specified": {
+      "message": "指定なし"
+  },
   "engine_method": {
       "message": "メソッド"
   },

@@ -127,6 +127,12 @@
   "engine_label": {
       "message": "Label on the tooltip"
   },
+  "engine_charset": {
+      "message": "Character set sent to the server"
+  },
+  "not_specified": {
+      "message": "Not specified"
+  },
   "engine_method": {
       "message": "Method"
   },

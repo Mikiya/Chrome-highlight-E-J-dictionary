@@ -594,7 +594,8 @@ $(function() {
             name: $('#new_engine_form #engine_name').val(),
             url: $('#new_engine_form #engine_url').val(),
             label: $('#new_engine_form #engine_label').val(),
-            method: $('#new_engine_form input[name=custom_engine_method]:checked').val()
+            method: $('#new_engine_form input[name=custom_engine_method]:checked').val(),
+            charset: $('#new_engine_form select#engine_charset>option:selected').val()
         };
 
         if (obj.method != 'REST') {
